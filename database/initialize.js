@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const db = require('./connections');
+const db = require('./connection');
 const { DATABASE } = require('../enum/message');
 
 const Initialize = {
@@ -11,6 +11,7 @@ const Initialize = {
         query: `CREATE TABLE IF NOT EXISTS games (
             game_id INTEGER PRIMARY KEY AUTOINCREMENT,
             game_status TEXT NOT NULL,
+            grid_size INTEGER NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
           );`,

@@ -10,4 +10,8 @@ module.exports = {
     TABLE_CREATED: (table) => `Table '${table}' created successfully or already exists!`,
     TABLE_FAILED: (table, error) => `Failed to create database table '${table}': ${error.message}`,
   },
+
+  GAME: {
+    CREATE_FAILED: (error) => `Failed to create new game: ${error.message}`,
+  },
 };

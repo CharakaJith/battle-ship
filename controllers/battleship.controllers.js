@@ -6,17 +6,23 @@ const { PAYLOAD } = require('../enum/message');
 const BattleshipController = {
   startNewGame: async (req, res) => {
     try {
-      throw new Error('sample test error');
+      const newGame = await BattleshipService.createNewGame();
+
       res.json({
         success: true,
-        message: PAYLOAD.GAME_STARTED,
+        data: {
+          message: PAYLOAD.GAME_STARTED,
+          game: newGame,
+        },
       });
     } catch (error) {
       logger(LOG_TYPE.ERROR, false, 500, error.message, req);
 
       res.json({
         success: false,
-        error: error.message,
+        data: {
+          message: error.message,
+        },
       });
     }
   },

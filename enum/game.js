@@ -4,4 +4,8 @@ module.exports = {
     WON: 'GAME_WON',
     LOST: 'GAME_LOST',
   }),
+
+  GRID: Object.freeze({
+    SIZE: 10,
+  }),
 };
