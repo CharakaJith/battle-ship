@@ -1,3 +1,6 @@
+const logger = require('../middleware/logger/logger');
+const BattleshipService = require('../services/battleship.service');
+
 const BattleshipController = {
   startNewGame: (req, res) => {
     try {

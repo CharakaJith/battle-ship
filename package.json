@@ -24,7 +24,9 @@
     "env-cmd": "^10.1.0",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
-    "randomatic": "^3.1.1"
+    "randomatic": "^3.1.1",
+    "winston": "^3.15.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
