@@ -1,7 +1,10 @@
+const { error } = require('winston');
+
 module.exports = {
-  PAYLOAD: Object.freeze({
+  PAYLOAD: {
     GAME_STARTED: 'New game started!',
-  }),
+    GAME_ABANDONED: (id) => `Game ${id} has been abandoned!`,
+  },
 
   DATABASE: {
     CONN_SUCCESS: 'Connected to the database successfully!',
@@ -13,5 +16,6 @@ module.exports = {
 
   GAME: {
     CREATE_FAILED: (error) => `Failed to create new game: ${error.message}`,
+    GET_BY_ID_FAILED: (id, error) => `Failed to fetch the game by id ${id}: ${error.message}`,
   },
 };
