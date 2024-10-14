@@ -9,6 +9,8 @@ const BattleshipController = {
         message: 'New game started!',
       });
     } catch (error) {
+      logger('error', false, 500, error.message, req);
+
       res.json({
         success: false,
         error: error.message,
