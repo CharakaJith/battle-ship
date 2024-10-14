@@ -1,15 +1,18 @@
 const logger = require('../middleware/logger/logger');
 const BattleshipService = require('../services/battleship.service');
+const { LOG_TYPE } = require('../enum/log');
+const { PAYLOAD } = require('../enum/message');
 
 const BattleshipController = {
-  startNewGame: (req, res) => {
+  startNewGame: async (req, res) => {
     try {
+      throw new Error('sample test error');
       res.json({
         success: true,
-        message: 'New game started!',
+        message: PAYLOAD.GAME_STARTED,
       });
     } catch (error) {
-      logger('error', false, 500, error.message, req);
+      logger(LOG_TYPE.ERROR, false, 500, error.message, req);
 
       res.json({
         success: false,

@@ -1,12 +1,13 @@
 const chalk = require('chalk');
 const db = require('./connections');
+const { DATABASE } = require('../enum/message');
 
 const Initialize = {
   createTables: () => {
     const tables = [
       // game table
       {
-        name: 'games',
+        table: 'games',
         query: `CREATE TABLE IF NOT EXISTS games (
             game_id INTEGER PRIMARY KEY AUTOINCREMENT,
             game_status TEXT NOT NULL,
@@ -19,12 +20,12 @@ const Initialize = {
     ];
 
     // create tables
-    tables.forEach(({ name, query }) => {
+    tables.forEach(({ table, query }) => {
       db.run(query, (error) => {
         if (error) {
-          console.log(chalk.white.bgRed.bold(`Failed to create database table "${name}": ${error.message}`));
+          console.log(chalk.white.bgRed.bold(DATABASE.CONN_FAILED(table, error)));
         } else {
-          console.log(chalk.white.bgBlue.bold(`Table '${name}' created successfully or already exists!`));
+          console.log(chalk.white.bgBlue.bold(DATABASE.TABLE_CREATED(table)));
         }
       });
     });
