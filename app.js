@@ -15,10 +15,10 @@ app.use(express.json());
 Initialize.createTables();
 
 // export routes
-const battleship = require('./routes/battleship.routes');
+const game = require('./routes/game.routes');
 
 // setup routing paths
-app.use('/api/battleship', battleship);
+app.use('/api/game', game);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

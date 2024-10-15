@@ -1,9 +1,9 @@
 module.exports = {
   GAME_STATUS: Object.freeze({
-    IN_PROGRESS: 'IN_PROGRESS',
-    WON: 'GAME_WON',
-    LOST: 'GAME_LOST',
-    OVER: 'GAME_OVER',
+    IN_PROGRESS: 'in_progress',
+    WON: 'game_won',
+    LOST: 'game_lost',
+    OVER: 'game_over',
   }),
 
   GRID: Object.freeze({

@@ -6,12 +6,14 @@ const GameService = {
   /**
    * Function to create a new record in table 'games'
    *
-   * @returns a newly created game object with full details
+   * @returns a newly created game object
    */
   createNewGame: () => {
     return new Promise((resolve, reject) => {
       const insertQuery = 'INSERT INTO games (game_status, grid_size) VALUES (?, ?);';
-      db.run(insertQuery, [GAME_STATUS.IN_PROGRESS, GRID.SIZE], function (error) {
+      const values = [GAME_STATUS.IN_PROGRESS, GRID.SIZE];
+
+      db.run(insertQuery, values, function (error) {
         if (error) {
           return reject(new Error(GAME.CREATE_FAILED(error)));
         }
@@ -53,7 +55,9 @@ const GameService = {
   updateGameById: (id, status) => {
     return new Promise((resolve, reject) => {
       const updateQuery = 'UPDATE games SET game_status = ?, updated_at = CURRENT_TIMESTAMP  WHERE game_id = ?';
-      db.run(updateQuery, [status, id], function (error) {
+      const values = [status, id];
+
+      db.run(updateQuery, values, function (error) {
         if (error) {
           return reject(new Error(GAME.UPDATE_FAILED(id, error)));
         }

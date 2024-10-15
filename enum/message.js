@@ -23,4 +23,9 @@ module.exports = {
     GET_BY_ID_FAILED: (id, error) => `Failed to fetch the game by id ${id}: ${error.message}`,
     UPDATE_FAILED: (id, error) => `Failed to update the game by id ${id}: ${error.message}`,
   },
+
+  // ship service error messages
+  SHIP: {
+    PLACE_FAILED: (error) => `Failed to place the ship: ${error.message}`,
+  },
 };
