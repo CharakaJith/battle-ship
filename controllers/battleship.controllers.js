@@ -1,5 +1,5 @@
 const logger = require('../middleware/logger/logger');
-const BattleshipService = require('../services/battleship.service');
+const GameService = require('../services/game.service');
 const { LOG_TYPE } = require('../enum/log');
 const { PAYLOAD } = require('../enum/message');
 const { GAME_STATUS } = require('../enum/game');
@@ -8,7 +8,7 @@ const BattleshipController = {
   startNewGame: async (req, res) => {
     try {
       // create a new game
-      const newGame = await BattleshipService.createNewGame();
+      const newGame = await GameService.createNewGame();
 
       // TODO: set grid
       // TODO: set ships
@@ -37,13 +37,13 @@ const BattleshipController = {
       const id = parseInt(req.params.id);
 
       // get the game by id and validate
-      const game = await BattleshipService.getGameById(id);
+      const game = await GameService.getGameById(id);
       if (!game || game.game_status === GAME_STATUS.OVER) {
-        throw new Error(`Invalid game id ${id}!`);
+        throw new Error(PAYLOAD.INVALID_ID(id));
       }
 
       // update game status
-      await BattleshipService.updateGameById(game.game_id, GAME_STATUS.OVER);
+      await GameService.updateGameById(game.game_id, GAME_STATUS.OVER);
 
       res.status(200).json({
         success: true,

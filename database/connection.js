@@ -6,9 +6,9 @@ const { DATABASE } = require('../enum/message');
 const dbPath = path.resolve(__dirname, 'database.db');
 const db = new sqlite3.Database(dbPath, (error) => {
   if (error) {
-    console.log(chalk.white.bgRed.bold(DATABASE.CONN_FAILED(error)));
+    console.log(chalk.white.bgRed.bold(` ${DATABASE.CONN_FAILED(error)} `));
   } else {
-    console.log(chalk.white.bgGreen.bold(DATABASE.CONN_SUCCESS));
+    console.log(chalk.white.bgGreen.bold(` ${DATABASE.CONN_SUCCESS} `));
   }
 });
 

@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// create database tables
+// create database and tables
 Initialize.createTables();
 
 // export routes

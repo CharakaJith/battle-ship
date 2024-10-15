@@ -2,7 +2,7 @@ const db = require('../database/connection');
 const { GAME_STATUS, GRID } = require('../enum/game');
 const { GAME } = require('../enum/message');
 
-const BattleshipService = {
+const GameService = {
   /**
    * Function to create a new record in table 'games'
    *
@@ -17,7 +17,7 @@ const BattleshipService = {
         }
 
         // get newly created game by id
-        BattleshipService.getGameById(this.lastID)
+        GameService.getGameById(this.lastID)
           .then((game) => resolve(game))
           .catch((error) => reject(error));
       });
@@ -52,15 +52,14 @@ const BattleshipService = {
    */
   updateGameById: (id, status) => {
     return new Promise((resolve, reject) => {
-      const updateQuery = 'UPDATE games SET game_status = ? WHERE game_id = ?';
-
+      const updateQuery = 'UPDATE games SET game_status = ?, updated_at = CURRENT_TIMESTAMP  WHERE game_id = ?';
       db.run(updateQuery, [status, id], function (error) {
         if (error) {
           return reject(new Error(GAME.UPDATE_FAILED(id, error)));
         }
 
-        // Fetch the updated game object after the update
-        BattleshipService.getGameById(id)
+        // get updated game by id
+        GameService.getGameById(id)
           .then((game) => resolve(game))
           .catch((error) => reject(error));
       });
@@ -68,4 +67,4 @@ const BattleshipService = {
   },
 };
 
-module.exports = BattleshipService;
+module.exports = GameService;
