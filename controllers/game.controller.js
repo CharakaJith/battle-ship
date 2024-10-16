@@ -2,7 +2,7 @@ const logger = require('../middleware/logger/logger');
 const GameService = require('../services/game.service');
 const ShipService = require('../services/ship.service');
 const { LOG_TYPE } = require('../enum/log');
-const { PAYLOAD } = require('../enum/message');
+const { PAYLOAD } = require('../common/messages');
 const { GAME_STATUS, GRID } = require('../enum/game');
 const { SHIP_TYPE, SHIP_POSITION } = require('../enum/ship');
 
@@ -10,7 +10,11 @@ const GameController = {
   startNewGame: async (req, res) => {
     try {
       // create a new game
-      const newGame = await GameService.createNewGame();
+      const gameDetails = {
+        gameStatus: GAME_STATUS.IN_PROGRESS,
+        size: GRID.SIZE,
+      };
+      const newGame = await GameService.createNewGame(gameDetails);
 
       // create the grid
       const grid = await createEmptyGrid(newGame.grid_size);
@@ -23,7 +27,10 @@ const GameController = {
           type: ship.ship,
           size: ship.size,
           position: ship.position,
-          coordinate: `${ship.start}: ${ship.startPoint}-> ${ship.endPoint}`,
+          startRow: ship.startRow,
+          endRow: ship.endRow,
+          startCol: ship.startCol,
+          endCol: ship.endCol,
         };
 
         await ShipService.placeShip(shipDetails);
@@ -55,17 +62,17 @@ const GameController = {
       // get the game by id and validate
       const game = await GameService.getGameById(id);
       if (!game || game.game_status === GAME_STATUS.OVER) {
-        throw new Error(PAYLOAD.INVALID_ID(id));
+        throw new Error(PAYLOAD.INVALID_GAME_ID(id));
       }
 
       // update game status
-      await GameService.updateGameById(game.game_id, GAME_STATUS.OVER);
+      const updatedGame = await GameService.updateGameById(game.game_id, GAME_STATUS.OVER);
 
       res.status(200).json({
         success: true,
         data: {
           message: PAYLOAD.GAME_ABANDONED(id),
-          game: game,
+          game: updatedGame,
         },
       });
     } catch (error) {
@@ -82,7 +89,7 @@ const GameController = {
 };
 
 const createEmptyGrid = async (size) => {
-  return Array.from({ length: size }, () => Array(size).fill(0));
+  return Array.from({ length: size }, () => Array(size).fill('~'));
 };
 
 const placeShipsOnGrid = async (grid) => {
@@ -120,9 +127,10 @@ const placeShipsOnGrid = async (grid) => {
       ship: ship.name,
       size: ship.size,
       position: isHorizontal ? SHIP_POSITION.HORIZONTAL : SHIP_POSITION.VERTICAL,
-      start: randomStart,
-      startPoint: startPoint,
-      endPoint: endPoint,
+      startRow: isHorizontal ? randomStart : startPoint,
+      endRow: isHorizontal ? randomStart : endPoint,
+      startCol: isHorizontal ? startPoint : randomStart,
+      endCol: isHorizontal ? endPoint : randomStart,
     });
   }
 

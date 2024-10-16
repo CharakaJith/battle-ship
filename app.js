@@ -16,9 +16,11 @@ Initialize.createTables();
 
 // export routes
 const game = require('./routes/game.routes');
+const attack = require('./routes/attack.routes');
 
 // setup routing paths
 app.use('/api/game', game);
+app.use('/api/attack', attack);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

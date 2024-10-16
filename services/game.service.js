@@ -1,21 +1,22 @@
 const db = require('../database/connection');
-const { GAME_STATUS, GRID } = require('../enum/game');
-const { GAME } = require('../enum/message');
+const { SERVICE } = require('../common/messages');
+const { TABLE_NAME } = require('../enum/table');
 
 const GameService = {
   /**
-   * Function to create a new record in table 'games'
+   * Function to create a new record in table "games"
    *
+   * @param {Object} game: game details object
    * @returns a newly created game object
    */
-  createNewGame: () => {
+  createNewGame: (game) => {
     return new Promise((resolve, reject) => {
       const insertQuery = 'INSERT INTO games (game_status, grid_size) VALUES (?, ?);';
-      const values = [GAME_STATUS.IN_PROGRESS, GRID.SIZE];
+      const values = [game.gameStatus, game.size];
 
       db.run(insertQuery, values, function (error) {
         if (error) {
-          return reject(new Error(GAME.CREATE_FAILED(error)));
+          return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.GAME, error)));
         }
 
         // get newly created game by id
@@ -27,17 +28,18 @@ const GameService = {
   },
 
   /**
-   * Function to retrieve a record from table 'games' by column 'game_id'
+   * Function to fetch a record from table "games" by column 'game_id'
    *
-   * @param {number} id: id of the game
+   * @param {number} gameId: id of the game
    * @returns a game object if exists, else null
    */
-  getGameById: (id) => {
+  getGameById: (gameId) => {
     return new Promise((resolve, reject) => {
-      const selectQuery = 'SELECT * FROM games WHERE game_id = ?';
-      db.get(selectQuery, [id], (error, row) => {
+      const getQuery = 'SELECT * FROM games WHERE game_id = ?';
+
+      db.get(getQuery, [gameId], function (error, row) {
         if (error) {
-          return reject(new Error(GAME.GET_BY_ID_FAILED(id, error)));
+          return reject(new Error(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.GAME, gameId, error)));
         }
 
         resolve(row);
@@ -46,7 +48,7 @@ const GameService = {
   },
 
   /**
-   * Function to update an existing record in the table 'games' by column 'game_id'
+   * Function to update an existing record in the table "games" by column 'game_id'
    *
    * @param {number} id: id of the game
    * @param {string} status: status of the game
@@ -59,7 +61,7 @@ const GameService = {
 
       db.run(updateQuery, values, function (error) {
         if (error) {
-          return reject(new Error(GAME.UPDATE_FAILED(id, error)));
+          return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.GAME, id, error)));
         }
 
         // get updated game by id

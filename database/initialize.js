@@ -1,12 +1,11 @@
 const chalk = require('chalk');
 const db = require('./connection');
-const { DATABASE } = require('../enum/message');
-const { query } = require('express');
+const { DATABASE } = require('../common/messages');
 
 const Initialize = {
   createTables: () => {
     const tables = [
-      // game table
+      // games table
       {
         table: 'games',
         query: `CREATE TABLE IF NOT EXISTS games (
@@ -18,16 +17,19 @@ const Initialize = {
           );`,
       },
 
-      // ship table
+      // ships table
       {
         table: 'ships',
-        query: `CREATE TABLE IF NOT EXISTS ships(
+        query: `CREATE TABLE IF NOT EXISTS ships (
             ship_id INTEGER PRIMARY KEY AUTOINCREMENT,
             game_id INTEGER NOT NULL,
             ship_type VARCHAR(20) NOT NULL,
             ship_size INTEGER NOT NULL,
             ship_position VARCHAR(20) NOT NULL,
-            ship_coordinate TEXT NOT NULL,
+            start_row INTEGER NOT NULL,
+            end_row INTEGER NOT NULL,
+            start_col INTEGER NOT NULL,
+            end_col INTEGER NOT NULL,
             is_sunck BOOLEAN NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -36,13 +38,14 @@ const Initialize = {
           );`,
       },
 
-      // shots table
+      // attacks table
       {
-        table: 'shots',
-        query: `CREATE TABLE IF NOT EXISTS shots(
-            shot_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        table: 'attacks',
+        query: `CREATE TABLE IF NOT EXISTS attacks (
+            attack_id INTEGER PRIMARY KEY AUTOINCREMENT,
             game_id INTEGER NOT NULL,
-            shot_coordinate VARCHAR(5) NOT NULL,
+            attack_row INTEGER NOT NULL,
+            attack_col INTEGER NOT NULL,
             is_hit BOOLEAN NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -56,9 +59,9 @@ const Initialize = {
     tables.forEach(({ table, query }) => {
       db.run(query, (error) => {
         if (error) {
-          console.log(chalk.white.bgRed.bold(` ${DATABASE.TABLE_FAILED(table, error)} `));
+          console.log(chalk.white.bgRed.bold(` ${DATABASE.TABLE.FAILED(table, error)} `));
         } else {
-          console.log(chalk.white.bgCyan.bold(` ${DATABASE.TABLE_CREATED(table)} `));
+          console.log(chalk.white.bgCyan.bold(` ${DATABASE.TABLE.CREATED(table)} `));
         }
       });
     });
