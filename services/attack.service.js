@@ -1,71 +1,155 @@
-const db = require('../database/connection');
-const { SERVICE } = require('../common/messages');
-const { TABLE_NAME } = require('../enum/table');
+const GameRepository = require('../repositories/game.repository');
+const AttackRepository = require('../repositories/attack.repository');
+const ShipRepository = require('../repositories/ship.repository');
+const FieldValidator = require('../util/field.validator');
+const { PAYLOAD } = require('../common/messages');
+const { GAME_STATUS } = require('../enum/game');
+const { SHIP_POSITION } = require('../enum/ship');
 
 const AttackService = {
-  /**
-   * Function to create a new record in table "attacks"
-   *
-   * @param {Object} attack: attack details object
-   * @returns a newly created attack object
-   */
-  createNewAttack: (attack) => {
-    return new Promise((resolve, reject) => {
-      const insertQuery = 'INSERT INTO attacks (game_id, attack_row, attack_col, is_hit) VALUES (?, ?, ?, ?)';
-      const values = [attack.gameId, attack.attackRow, attack.attackCol, attack.hit];
+  coordinateAttack: async (data) => {
+    const { gameId, coordinate } = data;
+    let payloadMessage = PAYLOAD.HIT_MISS;
 
-      db.run(insertQuery, values, function (error) {
-        if (error) {
-          return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.ATTACK, error)));
+    // get the game by id and validate
+    const game = await GameRepository.getGameById(gameId);
+    if (!game || game.game_status === GAME_STATUS.OVER) {
+      throw new Error(PAYLOAD.INVALID_GAME_ID(gameId));
+    }
+    if (game.game_status === GAME_STATUS.WON) {
+      throw new Error(PAYLOAD.GAME_OVER);
+    }
+
+    // validate coordinate
+    await FieldValidator.validateAttackCoordinate(coordinate);
+
+    // check if attack is already made
+    const attackVertices = await getVertices(coordinate, game);
+    const previousAttacks = await AttackRepository.getAllAttacksByGameId(gameId);
+    const isAlreadyAttacked = await checkAttackAvailable(attackVertices, previousAttacks);
+    if (isAlreadyAttacked) {
+      throw new Error(PAYLOAD.ATTACK_ALREADY_MADE);
+    }
+
+    // check if attack hits a ship
+    const ships = await ShipRepository.getAllShipsByGameId(gameId);
+    const isHit = await checkAttackHit(attackVertices, ships);
+
+    // populate the attack table
+    const attackDetails = {
+      gameId: game.game_id,
+      attackRow: attackVertices.row,
+      attackCol: attackVertices.col,
+      hit: isHit,
+    };
+    const allAttacks = await AttackRepository.createNewAttack(attackDetails);
+
+    // check if a ship sunk and update ship status
+    if (isHit) {
+      payloadMessage = PAYLOAD.HIT_SUCCESS;
+
+      for (const ship of ships) {
+        if (ship.is_sunk === 0) {
+          const isSunk = await checkIfShipSunk(ship, allAttacks);
+
+          if (isSunk) {
+            payloadMessage = PAYLOAD.HIT_SUNK(ship.ship_type);
+
+            // update ship status
+            const shipDetails = {
+              id: ship.ship_id,
+              gameId: gameId,
+              isSunk: true,
+            };
+            const updatedShips = await ShipRepository.updateShipStatusById(shipDetails);
+
+            // check all ships are sunk
+            const isWon = updatedShips.every((ship) => ship.is_sunk === 1);
+            if (isWon) {
+              payloadMessage = PAYLOAD.GAME_WON;
+
+              // update game status
+              const gameDetails = {
+                id: game.game_id,
+                status: GAME_STATUS.WON,
+              };
+              await GameRepository.updateGameStatusById(gameDetails);
+            }
+          }
         }
+      }
+    }
 
-        // get newly created attack by id
-        AttackService.getAllAttacksByGameId(attack.gameId)
-          .then((attacks) => resolve(attacks))
-          .catch((error) => reject(error));
-      });
-    });
+    return {
+      statusCode: 200,
+      responseMessage: payloadMessage,
+    };
   },
+};
 
-  /**
-   * Function to fetch a record from table "attacks" by column 'attack_id'
-   *
-   * @param {number} attackId: id of the attack
-   * @returns an attack object if exists, else null
-   */
-  getAttackById: (attackId) => {
-    return new Promise((resolve, reject) => {
-      const getQuery = 'SELECT * FROM attacks WHERE attack_id = ?';
+const getAlphabetPosition = async (letter) => {
+  return letter.toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+};
 
-      db.get(getQuery, [attackId], function (error, row) {
-        if (error) {
-          return reject(new Error(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.ATTACK, attackId, error)));
-        }
+const getVertices = async (coordinate, game) => {
+  const match = coordinate.match(/^([A-Z])(\d+)$/);
 
-        resolve(row);
-      });
-    });
-  },
+  const [_, letter, number] = match;
+  const colNum = await getAlphabetPosition(letter);
+  const row = parseInt(number, 10) - 1;
+  const col = colNum - 1;
 
-  /**
-   * Function to fetch multiple records from table "attacks" by column 'game_id'
-   *
-   * @param {number} gameId: id of the game
-   * @returns a list of attack objects
-   */
-  getAllAttacksByGameId: (gameId) => {
-    return new Promise((resolve, reject) => {
-      const getAllQuery = 'SELECT * FROM attacks WHERE game_id = ?';
+  // validate row and column against grid size
+  if (row < 0 || row >= game.grid_size || col < 0 || col >= game.grid_size) {
+    throw new Error(PAYLOAD.INVALID_COORDINATE);
+  }
 
-      db.all(getAllQuery, [gameId], function (error, rows) {
-        if (error) {
-          return reject(new Error(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error)));
-        }
+  return { row, col };
+};
 
-        resolve(rows);
-      });
-    });
-  },
+const checkAttackAvailable = async (attack, previousAttacks) => {
+  return previousAttacks.some((prev) => prev.attack_row === attack.row && prev.attack_col === attack.col);
+};
+
+const checkAttackHit = async (attack, ships, previousAttacks) => {
+  const attackRow = attack.row;
+  const attackCol = attack.col;
+
+  let isHit = false;
+  for (const ship of ships) {
+    if (ship.ship_position === SHIP_POSITION.HORIZONTAL) {
+      // check if the attack row matches and the column is within the ship's column range
+      if (attackRow === ship.start_row && attackCol >= ship.start_col && attackCol <= ship.end_col) {
+        isHit = true;
+      }
+    } else if (ship.ship_position === SHIP_POSITION.VERTICAL) {
+      // check if the attack column matches and the row is within the ship's row range
+      if (attackCol === ship.start_col && attackRow >= ship.start_row && attackRow <= ship.end_row) {
+        isHit = true;
+      }
+    }
+  }
+
+  return isHit;
+};
+
+const checkIfShipSunk = async (ship, allAttacks) => {
+  // get successful hits
+  const hits = allAttacks.filter((attack) => attack.is_hit === 1);
+
+  // get ship coordinates
+  const shipPositions = [];
+  if (ship.ship_position === SHIP_POSITION.VERTICAL) {
+    for (let row = ship.start_row; row <= ship.end_row; row++) {
+      shipPositions.push({ row, col: ship.start_col });
+    }
+  } else if (ship.ship_position === SHIP_POSITION.HORIZONTAL) {
+    for (let col = ship.start_col; col <= ship.end_col; col++) {
+      shipPositions.push({ row: ship.start_row, col });
+    }
+  }
+
+  return shipPositions.every((pos) => hits.some((attack) => attack.attack_row === pos.row && attack.attack_col === pos.col));
 };
 
 module.exports = AttackService;

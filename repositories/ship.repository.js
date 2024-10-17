@@ -2,7 +2,7 @@ const db = require('../database/connection');
 const { SERVICE } = require('../common/messages');
 const { TABLE_NAME } = require('../enum/table');
 
-const ShipService = {
+const ShipRepository = {
   /**
    * Function to create a new record in table "ships"
    *
@@ -16,9 +16,7 @@ const ShipService = {
       const values = [ship.gameId, ship.type, ship.size, ship.position, ship.startRow, ship.endRow, ship.startCol, ship.endCol, false];
 
       db.run(insertQuery, values, function (error) {
-        if (error) {
-          return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.SHIP, error)));
-        }
+        if (error) return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.SHIP, error)));
 
         resolve(this.lastID);
       });
@@ -36,9 +34,7 @@ const ShipService = {
       const getAllQuery = 'SELECT * FROM ships WHERE game_id = ?';
 
       db.all(getAllQuery, [gameId], function (error, rows) {
-        if (error) {
-          return reject(new Error(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error)));
-        }
+        if (error) return reject(new Error(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error)));
 
         resolve(rows);
       });
@@ -59,9 +55,7 @@ const ShipService = {
       const values = [ship.isSunk, ship.id];
 
       db.run(updateQuery, values, function (error) {
-        if (error) {
-          return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.SHIP, id, error)));
-        }
+        if (error) return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.SHIP, id, error)));
 
         // get all ships
         ShipService.getAllShipsByGameId(ship.gameId)
@@ -72,4 +66,4 @@ const ShipService = {
   },
 };
 
-module.exports = ShipService;
+module.exports = ShipRepository;
