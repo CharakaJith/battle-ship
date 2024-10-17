@@ -2,7 +2,7 @@ const logger = require('../middleware/logger/logger');
 const GameService = require('../services/game.service');
 const ShipService = require('../services/ship.service');
 const AttackService = require('../services/attack.service');
-const Validator = require('../util/validator');
+const FieldValidator = require('../util/field.validator');
 const { PAYLOAD } = require('../common/messages');
 const { GAME_STATUS } = require('../enum/game');
 const { LOG_TYPE } = require('../enum/log');
@@ -25,7 +25,7 @@ const AttackController = {
       }
 
       // validate coordinate
-      await Validator.validateAttackCoordinate(cooridnate);
+      await FieldValidator.validateAttackCoordinate(cooridnate);
 
       // check if attack is already made
       const attackVertices = await getVertices(cooridnate, game);

@@ -49,7 +49,7 @@ const ShipService = {
    * Function to update column 'is_sunk' in an existing record in the table "ships" by column 'ship_id'
    *
    * @param {Objects} ship: ship details object
-   * @returns
+   * @returns a list of all ship objects
    */
   updateShipStatusById: (ship) => {
     return new Promise((resolve, reject) => {

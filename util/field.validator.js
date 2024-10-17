@@ -1,6 +1,6 @@
 const { VALIDATE } = require('../common/messages');
 
-const Validator = {
+const FieldValidator = {
   checkIfEmptyString: async (param, fieldName) => {
     if (!param || param.trim().length === 0) {
       throw new Error(VALIDATE.EMPTY_PARAM(fieldName));
@@ -12,7 +12,7 @@ const Validator = {
   validateAttackCoordinate: async (cooridnate) => {
     const coordinateFormat = /^[A-Z][1-9]\d*(?: [A-Z][1-9]\d*)*$/;
 
-    const isValidCoordinate = await Validator.checkIfEmptyString(cooridnate, 'cooridnate');
+    const isValidCoordinate = await FieldValidator.checkIfEmptyString(cooridnate, 'cooridnate');
 
     if (isValidCoordinate && !String(cooridnate).match(coordinateFormat)) {
       throw new Error(VALIDATE.INVALID_PARAM('attack coordinate'));
@@ -22,4 +22,4 @@ const Validator = {
   },
 };
 
-module.exports = Validator;
+module.exports = FieldValidator;

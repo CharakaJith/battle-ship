@@ -2,8 +2,8 @@ const logger = require('../middleware/logger/logger');
 const GameService = require('../services/game.service');
 const ShipService = require('../services/ship.service');
 const AttackService = require('../services/attack.service');
-const { LOG_TYPE } = require('../enum/log');
 const { PAYLOAD } = require('../common/messages');
+const { LOG_TYPE } = require('../enum/log');
 const { GAME_STATUS, GRID } = require('../enum/game');
 const { SHIP_TYPE, SHIP_POSITION } = require('../enum/ship');
 
@@ -142,43 +142,90 @@ const placeShipsOnGrid = async (grid) => {
   // place the ship on the grid
   for (const ship of shipsToPlace) {
     let isPlaced = false;
-    // while (!isPlaced) {}
+    while (!isPlaced) {
+      const isHorizontal = Math.random() >= 0.5;
+      let startPoint = Math.floor(Math.random() * grid.length);
+      const shipSize = ship.size - 1;
+      let endPoint = startPoint + shipSize;
 
-    let startPoint = Math.floor(Math.random() * grid.length);
-    const isHorizontal = Math.random() >= 0.5;
+      // check if end point is within the grid
+      if (endPoint >= grid.length) {
+        endPoint = startPoint - shipSize;
+      }
 
-    const shipSize = ship.size - 1;
-    let endPoint = startPoint + shipSize;
+      // validate start and end points
+      if (endPoint < startPoint) {
+        [startPoint, endPoint] = [endPoint, startPoint];
+      }
 
-    // check if end point is within the grid
-    if (endPoint >= grid.length) {
-      endPoint = startPoint - shipSize;
+      // assign random starting point
+      let maxStart = grid.length - shipSize;
+      let randomStart = Math.floor(Math.random() * (maxStart + 1));
+
+      const newShip = {
+        ship: ship.name,
+        size: ship.size,
+        position: isHorizontal ? SHIP_POSITION.HORIZONTAL : SHIP_POSITION.VERTICAL,
+        startRow: isHorizontal ? randomStart : startPoint,
+        endRow: isHorizontal ? randomStart : endPoint,
+        startCol: isHorizontal ? startPoint : randomStart,
+        endCol: isHorizontal ? endPoint : randomStart,
+      };
+
+      // check if available position
+      const isAvailable = await checkShipPlacement(newShip, placedShips);
+
+      if (isAvailable) {
+        placedShips.push(newShip);
+
+        isPlaced = true;
+      }
     }
-
-    // validate start and end points
-    if (endPoint < startPoint) {
-      [startPoint, endPoint] = [endPoint, startPoint];
-    }
-
-    // assign random starting point
-    let maxStart = grid.length - shipSize;
-    let randomStart = Math.floor(Math.random() * (maxStart + 1));
-
-    placedShips.push({
-      ship: ship.name,
-      size: ship.size,
-      position: isHorizontal ? SHIP_POSITION.HORIZONTAL : SHIP_POSITION.VERTICAL,
-      startRow: isHorizontal ? randomStart : startPoint,
-      endRow: isHorizontal ? randomStart : endPoint,
-      startCol: isHorizontal ? startPoint : randomStart,
-      endCol: isHorizontal ? endPoint : randomStart,
-    });
   }
 
   return placedShips;
 };
 
-// TODO: check and validate ship placement
-const checkShipPlacement = async (grid, startingPoint, shipSize, isHorizontal) => {};
+const checkShipPlacement = async (newShip, placedShips) => {
+  const { position, startRow, startCol, endRow, endCol } = newShip;
+
+  let isAvailable = true;
+  for (const placedShip of placedShips) {
+    const samePosition = placedShip.position === position;
+
+    // check horizontal overlap
+    if (
+      samePosition &&
+      position === SHIP_POSITION.HORIZONTAL &&
+      placedShip.startRow === startRow &&
+      startCol <= placedShip.endCol &&
+      endCol >= placedShip.startCol
+    ) {
+      isAvailable = false;
+    }
+
+    // check vertical overlap
+    if (
+      samePosition &&
+      position === SHIP_POSITION.VERTICAL &&
+      placedShip.startCol === startCol &&
+      startRow <= placedShip.endRow &&
+      endRow >= placedShip.startRow
+    ) {
+      isAvailable = false;
+    }
+
+    // check cross overlap
+    if (
+      !samePosition &&
+      ((startRow >= placedShip.startRow && startRow <= placedShip.endRow && startCol === placedShip.startCol) ||
+        (startCol >= placedShip.startCol && startCol <= placedShip.endCol && startRow === placedShip.startRow))
+    ) {
+      isAvailable = false;
+    }
+  }
+
+  return isAvailable;
+};
 
 module.exports = GameController;
