@@ -30,7 +30,7 @@ const Initialize = {
             end_row INTEGER NOT NULL,
             start_col INTEGER NOT NULL,
             end_col INTEGER NOT NULL,
-            is_sunck BOOLEAN NOT NULL,
+            is_sunk BOOLEAN NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 

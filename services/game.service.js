@@ -48,16 +48,17 @@ const GameService = {
   },
 
   /**
-   * Function to update an existing record in the table "games" by column 'game_id'
+   * Function to update column 'game_status' in an existing record in the table "games" by column 'game_id'
    *
-   * @param {number} id: id of the game
-   * @param {string} status: status of the game
+   * @param {object} game: game details object
    * @returns an updated game object
    */
-  updateGameById: (id, status) => {
+  updateGameStatusById: (game) => {
     return new Promise((resolve, reject) => {
-      const updateQuery = 'UPDATE games SET game_status = ?, updated_at = CURRENT_TIMESTAMP  WHERE game_id = ?';
-      const values = [status, id];
+      const updateQuery = `UPDATE games 
+          SET game_status = ?, updated_at = CURRENT_TIMESTAMP  
+          WHERE game_id = ?`;
+      const values = [game.status, game.id];
 
       db.run(updateQuery, values, function (error) {
         if (error) {
@@ -65,7 +66,7 @@ const GameService = {
         }
 
         // get updated game by id
-        GameService.getGameById(id)
+        GameService.getGameById(game.id)
           .then((game) => resolve(game))
           .catch((error) => reject(error));
       });

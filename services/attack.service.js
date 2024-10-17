@@ -20,8 +20,8 @@ const AttackService = {
         }
 
         // get newly created attack by id
-        AttackService.getAttackById(this.lastID)
-          .then((attack) => resolve(attack))
+        AttackService.getAllAttacksByGameId(attack.gameId)
+          .then((attacks) => resolve(attacks))
           .catch((error) => reject(error));
       });
     });

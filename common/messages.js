@@ -4,11 +4,14 @@ module.exports = {
   // response payload messages
   PAYLOAD: {
     GAME_STARTED: 'New game has started!',
+    GAME_OVER: 'Game over!',
+    GAME_WON: 'All ships sunked! you Won!',
     INVALID_COORDINATE: 'Attck coordinate is out of boundry!',
     ATTACK_ALREADY_MADE: 'Coordinate already attacked!',
     HIT_SUCCESS: 'Hit! Attack was successful!',
     HIT_MISS: 'Miss! Attack was unsuccessful',
-
+    HIT_SUNK: (ship) => `Hit! A ${ship} was sunked!`,
+    GAME_FETCHED: (id) => `Game ${id} fetched successfully!`,
     INVALID_GAME_ID: (id) => `Invalid game id ${id}!`,
     GAME_ABANDONED: (id) => `Game ${id} has been abandoned!`,
   },

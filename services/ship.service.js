@@ -12,7 +12,7 @@ const ShipService = {
   placeShip: (ship) => {
     return new Promise((resolve, reject) => {
       const insertQuery =
-        'INSERT INTO ships (game_id, ship_type, ship_size, ship_position, start_row, end_row, start_col, end_col, is_sunck) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        'INSERT INTO ships (game_id, ship_type, ship_size, ship_position, start_row, end_row, start_col, end_col, is_sunk) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
       const values = [ship.gameId, ship.type, ship.size, ship.position, ship.startRow, ship.endRow, ship.startCol, ship.endCol, false];
 
       db.run(insertQuery, values, function (error) {
@@ -41,6 +41,32 @@ const ShipService = {
         }
 
         resolve(rows);
+      });
+    });
+  },
+
+  /**
+   * Function to update column 'is_sunk' in an existing record in the table "ships" by column 'ship_id'
+   *
+   * @param {Objects} ship: ship details object
+   * @returns
+   */
+  updateShipStatusById: (ship) => {
+    return new Promise((resolve, reject) => {
+      const updateQuery = `UPDATE ships
+          SET is_sunk = ?, updated_at = CURRENT_TIMESTAMP 
+          WHERE ship_id = ?`;
+      const values = [ship.isSunk, ship.id];
+
+      db.run(updateQuery, values, function (error) {
+        if (error) {
+          return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.SHIP, id, error)));
+        }
+
+        // get all ships
+        ShipService.getAllShipsByGameId(ship.gameId)
+          .then((ships) => resolve(ships))
+          .catch((error) => reject(error));
       });
     });
   },

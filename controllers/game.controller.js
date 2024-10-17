@@ -1,6 +1,7 @@
 const logger = require('../middleware/logger/logger');
 const GameService = require('../services/game.service');
 const ShipService = require('../services/ship.service');
+const AttackService = require('../services/attack.service');
 const { LOG_TYPE } = require('../enum/log');
 const { PAYLOAD } = require('../common/messages');
 const { GAME_STATUS, GRID } = require('../enum/game');
@@ -55,23 +56,63 @@ const GameController = {
     }
   },
 
-  abandonGame: async (req, res) => {
+  getGameDetails: async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const gameId = parseInt(req.params.id);
 
       // get the game by id and validate
-      const game = await GameService.getGameById(id);
+      const game = await GameService.getGameById(gameId);
       if (!game || game.game_status === GAME_STATUS.OVER) {
-        throw new Error(PAYLOAD.INVALID_GAME_ID(id));
+        throw new Error(PAYLOAD.INVALID_GAME_ID(gameId));
       }
 
-      // update game status
-      const updatedGame = await GameService.updateGameById(game.game_id, GAME_STATUS.OVER);
+      // get ships and attacks
+      const ships = await ShipService.getAllShipsByGameId(gameId);
+      const attacks = await AttackService.getAllAttacksByGameId(gameId);
 
       res.status(200).json({
         success: true,
         data: {
-          message: PAYLOAD.GAME_ABANDONED(id),
+          message: PAYLOAD.GAME_FETCHED(gameId),
+          game: game,
+          ships: ships,
+          attacks: attacks,
+        },
+      });
+    } catch (error) {
+      logger(LOG_TYPE.ERROR, false, 500, error.message, req);
+
+      res.status(500).json({
+        success: false,
+        data: {
+          message: error.message,
+        },
+      });
+    }
+  },
+
+  abandonGame: async (req, res) => {
+    try {
+      const gameId = parseInt(req.params.id);
+
+      // get the game by id and validate
+      const game = await GameService.getGameById(gameId);
+      if (!game || game.game_status === GAME_STATUS.OVER) {
+        throw new Error(PAYLOAD.INVALID_GAME_ID(gameId));
+      }
+
+      // update game status
+      const gameDetails = {
+        id: game.game_id,
+        status: GAME_STATUS.OVER,
+        size: game.grid_size,
+      };
+      const updatedGame = await GameService.updateGameStatusById(gameDetails);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          message: PAYLOAD.GAME_ABANDONED(gameId),
           game: updatedGame,
         },
       });

@@ -13,30 +13,31 @@ const AttackController = {
     try {
       const gameId = parseInt(req.params.id);
       const { cooridnate } = req.body;
+      let payloadMessage = PAYLOAD.HIT_MISS;
 
       // get the game by id and validate
       const game = await GameService.getGameById(gameId);
       if (!game || game.game_status === GAME_STATUS.OVER) {
         throw new Error(PAYLOAD.INVALID_GAME_ID(gameId));
       }
+      if (game.game_status === GAME_STATUS.WON) {
+        throw new Error(PAYLOAD.GAME_OVER);
+      }
 
       // validate coordinate
-      let isHit = false;
-      let attackVertices;
-      const isValidPoint = await Validator.validateAttackCoordinate(cooridnate);
-      if (isValidPoint) {
-        const ships = await ShipService.getAllShipsByGameId(gameId);
-        attackVertices = await getVertices(cooridnate, game);
+      await Validator.validateAttackCoordinate(cooridnate);
 
-        // check if attack is already made
-        const previousAttacks = await AttackService.getAllAttacksByGameId(gameId);
-        const isAlreadyAttacked = await checkAttackAvailable(attackVertices, previousAttacks);
-        if (isAlreadyAttacked) {
-          throw new Error(PAYLOAD.ATTACK_ALREADY_MADE);
-        }
+      // check if attack is already made
+      const attackVertices = await getVertices(cooridnate, game);
+      const previousAttacks = await AttackService.getAllAttacksByGameId(gameId);
+      const isAlreadyAttacked = await checkAttackAvailable(attackVertices, previousAttacks);
+      // if (isAlreadyAttacked) {
+      //   throw new Error(PAYLOAD.ATTACK_ALREADY_MADE);
+      // }
 
-        isHit = await checkAttackHit(attackVertices, ships);
-      }
+      // check if attack hits a ship
+      const ships = await ShipService.getAllShipsByGameId(gameId);
+      const isHit = await checkAttackHit(attackVertices, ships);
 
       // populate the attack table
       const attackDetails = {
@@ -45,13 +46,48 @@ const AttackController = {
         attackCol: attackVertices.col,
         hit: isHit,
       };
-      const newAttack = await AttackService.createNewAttack(attackDetails);
+      const allAttacks = await AttackService.createNewAttack(attackDetails);
+
+      // check if a ship sunk and update ship status
+      if (isHit) {
+        payloadMessage = PAYLOAD.HIT_SUCCESS;
+
+        for (const ship of ships) {
+          if (ship.is_sunk === 0) {
+            const isSunk = await checkIfShipSunk(ship, allAttacks);
+
+            if (isSunk) {
+              payloadMessage = PAYLOAD.HIT_SUNK(ship.ship_type);
+
+              // update ship status
+              const shipDetails = {
+                id: ship.ship_id,
+                gameId: gameId,
+                isSunk: true,
+              };
+              const updatedShips = await ShipService.updateShipStatusById(shipDetails);
+
+              // check all ships are sunk
+              const isWon = updatedShips.every((ship) => ship.is_sunk === 1);
+              if (isWon) {
+                payloadMessage = PAYLOAD.GAME_WON;
+
+                // update game status
+                const gameDetails = {
+                  id: game.game_id,
+                  status: GAME_STATUS.WON,
+                };
+                await GameService.updateGameStatusById(gameDetails);
+              }
+            }
+          }
+        }
+      }
 
       res.status(200).json({
         success: true,
         data: {
-          message: isHit ? PAYLOAD.HIT_SUCCESS : PAYLOAD.HIT_MISS,
-          attack: newAttack,
+          message: payloadMessage,
         },
       });
     } catch (error) {
@@ -91,7 +127,7 @@ const checkAttackAvailable = async (attack, previousAttacks) => {
   return previousAttacks.some((prev) => prev.attack_row === attack.row && prev.attack_col === attack.col);
 };
 
-const checkAttackHit = async (attack, ships) => {
+const checkAttackHit = async (attack, ships, previousAttacks) => {
   const attackRow = attack.row;
   const attackCol = attack.col;
 
@@ -111,6 +147,25 @@ const checkAttackHit = async (attack, ships) => {
   }
 
   return isHit;
+};
+
+const checkIfShipSunk = async (ship, allAttacks) => {
+  // get successful hits
+  const hits = allAttacks.filter((attack) => attack.is_hit === 1);
+
+  // get ship coordinates
+  const shipPositions = [];
+  if (ship.ship_position === SHIP_POSITION.VERTICAL) {
+    for (let row = ship.start_row; row <= ship.end_row; row++) {
+      shipPositions.push({ row, col: ship.start_col });
+    }
+  } else if (ship.ship_position === SHIP_POSITION.HORIZONTAL) {
+    for (let col = ship.start_col; col <= ship.end_col; col++) {
+      shipPositions.push({ row: ship.start_row, col });
+    }
+  }
+
+  return shipPositions.every((pos) => hits.some((attack) => attack.attack_row === pos.row && attack.attack_col === pos.col));
 };
 
 module.exports = AttackController;
