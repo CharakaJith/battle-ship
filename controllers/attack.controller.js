@@ -3,17 +3,19 @@ const AttackService = require('../services/attack.service');
 const AttackController = {
   coordinateAttack: async (req, res, next) => {
     try {
-      const gameId = parseInt(req.params.id);
-      const { coordinate } = req.body;
+      const { gameId, coordinate } = req.body;
 
       const data = { gameId, coordinate };
       const attackResponse = await AttackService.coordinateAttack(data);
 
-      const { statusCode, responseMessage } = attackResponse;
+      const { statusCode, responseMessage, isHit, isWon, sunkenShips } = attackResponse;
       res.status(statusCode).json({
         success: true,
         data: {
           message: responseMessage,
+          isHit: isHit,
+          isWon: isWon,
+          sunkenShips: sunkenShips,
         },
       });
     } catch (error) {

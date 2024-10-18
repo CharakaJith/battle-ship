@@ -69,7 +69,7 @@ const GameService = {
     if (!game) {
       throw new CustomError(PAYLOAD.INVALID_GAME_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
-    if (game.game_status === GAME_STATUS.OVER) {
+    if (game.game_status !== GAME_STATUS.IN_PROGRESS) {
       throw new CustomError(PAYLOAD.GAME_OVER, STATUS_CODE.CONFLICT);
     }
 

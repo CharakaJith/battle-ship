@@ -11,7 +11,12 @@ const { SHIP_POSITION } = require('../constants/ship.constant');
 const AttackService = {
   coordinateAttack: async (data) => {
     const { gameId, coordinate } = data;
+    let gameWon = false;
     let payloadMessage = PAYLOAD.HIT_MISS;
+
+    // validate game id and coordinate
+    await FieldValidator.checkIfEmptyNumber(gameId, 'gameId');
+    await FieldValidator.validateAttackCoordinate(coordinate);
 
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
@@ -19,11 +24,18 @@ const AttackService = {
       throw new CustomError(PAYLOAD.INVALID_GAME_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
     if (game.game_status === GAME_STATUS.WON) {
-      throw new CustomError(PAYLOAD.GAME_OVER, STATUS_CODE.CONFLICT);
-    }
+      gameWon = true;
+      const ships = await ShipRepository.getAllShipsByGameId(gameId);
+      const sunkenShips = ships.filter((ship) => ship.is_sunk === 1);
 
-    // validate coordinate
-    await FieldValidator.validateAttackCoordinate(coordinate);
+      return {
+        statusCode: STATUS_CODE.OK,
+        responseMessage: PAYLOAD.GAME_WON,
+        isHit: false,
+        isWon: gameWon,
+        sunkenShips: sunkenShips,
+      };
+    }
 
     // check if attack is already made
     const attackVertices = await getVertices(coordinate, game);
@@ -35,6 +47,7 @@ const AttackService = {
 
     // check if attack hits a ship
     const ships = await ShipRepository.getAllShipsByGameId(gameId);
+    const sunkenShips = ships.filter((ship) => ship.is_sunk === 1);
     const isHit = await checkAttackHit(attackVertices, ships);
 
     // populate the attack table
@@ -55,6 +68,7 @@ const AttackService = {
           const isSunk = await checkIfShipSunk(ship, allAttacks);
 
           if (isSunk) {
+            sunkenShips.push(ship);
             payloadMessage = PAYLOAD.HIT_SUNK(ship.ship_type);
 
             // update ship status
@@ -68,7 +82,7 @@ const AttackService = {
             // check all ships are sunk
             const isWon = updatedShips.every((ship) => ship.is_sunk === 1);
             if (isWon) {
-              payloadMessage = PAYLOAD.GAME_WON;
+              gameWon = true;
 
               // update game status
               const gameDetails = {
@@ -85,6 +99,9 @@ const AttackService = {
     return {
       statusCode: STATUS_CODE.CREATED,
       responseMessage: payloadMessage,
+      isHit: isHit,
+      isWon: gameWon,
+      sunkenShips: sunkenShips,
     };
   },
 };

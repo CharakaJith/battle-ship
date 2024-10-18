@@ -50,7 +50,7 @@ const Initialize = {
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             
             FOREIGN KEY (game_id) REFERENCES games(game_id) ON DELETE CASCADE
-          )`,
+          );`,
       },
     ];
 

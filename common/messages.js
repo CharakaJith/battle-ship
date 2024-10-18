@@ -4,7 +4,7 @@ module.exports = {
     GAME_STARTED: 'New game has started!',
     GAME_FETCHED: 'Game fetched successfully!',
     GAME_ABANDONED: 'Game abandoned!',
-    GAME_OVER: 'Game over!',
+    GAME_OVER: 'Game is already over!',
     GAME_WON: 'All ships sunked! you Won!',
     INVALID_COORDINATE: 'Attck coordinate is out of boundry!',
     ATTACK_ALREADY_MADE: 'Coordinate already attacked!',

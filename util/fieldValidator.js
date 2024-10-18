@@ -11,6 +11,12 @@ const FieldValidator = {
     return true;
   },
 
+  checkIfEmptyNumber: async (param, fieldName) => {
+    if (!param) {
+      throw new CustomError(VALIDATE.EMPTY_PARAM(fieldName), STATUS_CODE.BAD_REQUEST);
+    }
+  },
+
   validateAttackCoordinate: async (cooridnate) => {
     const coordinateFormat = /^[A-Z][1-9]\d*(?: [A-Z][1-9]\d*)*$/;
 
