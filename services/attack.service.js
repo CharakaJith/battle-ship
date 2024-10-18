@@ -1,8 +1,10 @@
 const GameRepository = require('../repositories/game.repository');
 const AttackRepository = require('../repositories/attack.repository');
 const ShipRepository = require('../repositories/ship.repository');
-const FieldValidator = require('../util/field.validator');
+const FieldValidator = require('../util/fieldValidator');
+const CustomError = require('../util/customError');
 const { PAYLOAD } = require('../common/messages');
+const { STATUS_CODE } = require('../constants/app.constant');
 const { GAME_STATUS } = require('../constants/game.constant');
 const { SHIP_POSITION } = require('../constants/ship.constant');
 
@@ -14,10 +16,10 @@ const AttackService = {
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
     if (!game || game.game_status === GAME_STATUS.OVER) {
-      throw new Error(PAYLOAD.INVALID_GAME_ID(gameId));
+      throw new CustomError(PAYLOAD.INVALID_GAME_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
     if (game.game_status === GAME_STATUS.WON) {
-      throw new Error(PAYLOAD.GAME_OVER);
+      throw new CustomError(PAYLOAD.GAME_OVER, STATUS_CODE.CONFLICT);
     }
 
     // validate coordinate
@@ -28,7 +30,7 @@ const AttackService = {
     const previousAttacks = await AttackRepository.getAllAttacksByGameId(gameId);
     const isAlreadyAttacked = await checkAttackAvailable(attackVertices, previousAttacks);
     if (isAlreadyAttacked) {
-      throw new Error(PAYLOAD.ATTACK_ALREADY_MADE);
+      throw new CustomError(PAYLOAD.ATTACK_ALREADY_MADE, STATUS_CODE.CONFLICT);
     }
 
     // check if attack hits a ship
@@ -81,7 +83,7 @@ const AttackService = {
     }
 
     return {
-      statusCode: 200,
+      statusCode: STATUS_CODE.CREATED,
       responseMessage: payloadMessage,
     };
   },
@@ -102,7 +104,7 @@ const getVertices = async (coordinate, game) => {
 
   // validate row and column against grid size
   if (row < 0 || row >= game.grid_size || col < 0 || col >= game.grid_size) {
-    throw new Error(PAYLOAD.INVALID_COORDINATE);
+    throw new CustomError(PAYLOAD.INVALID_COORDINATE, STATUS_CODE.BAD_REQUEST);
   }
 
   return { row, col };

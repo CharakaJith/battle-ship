@@ -1,9 +1,7 @@
-const logger = require('../middleware/logger/logger');
 const GameService = require('../services/game.service');
-const { LOG_TYPE } = require('../constants/log.constant');
 
 const GameController = {
-  startNewGame: async (req, res) => {
+  startNewGame: async (req, res, next) => {
     try {
       const startResponse = await GameService.startNewGame();
 
@@ -16,18 +14,11 @@ const GameController = {
         },
       });
     } catch (error) {
-      logger(LOG_TYPE.ERROR, false, 500, error.message, req);
-
-      res.status(500).json({
-        success: false,
-        data: {
-          message: error.message,
-        },
-      });
+      next(error);
     }
   },
 
-  getGameDetails: async (req, res) => {
+  getGameDetails: async (req, res, next) => {
     try {
       const gameId = parseInt(req.params.id);
       const getResponse = await GameService.getGameDetails(gameId);
@@ -43,18 +34,11 @@ const GameController = {
         },
       });
     } catch (error) {
-      logger(LOG_TYPE.ERROR, false, 500, error.message, req);
-
-      res.status(500).json({
-        success: false,
-        data: {
-          message: error.message,
-        },
-      });
+      next(error);
     }
   },
 
-  abandonGame: async (req, res) => {
+  abandonGame: async (req, res, next) => {
     try {
       const gameId = parseInt(req.params.id);
       const abandonResponse = await GameService.abandonGame(gameId);
@@ -67,14 +51,7 @@ const GameController = {
         },
       });
     } catch (error) {
-      logger(LOG_TYPE.ERROR, false, 500, error.message, req);
-
-      res.status(500).json({
-        success: false,
-        data: {
-          message: error.message,
-        },
-      });
+      next(error);
     }
   },
 };

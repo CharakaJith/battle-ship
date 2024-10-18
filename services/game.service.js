@@ -1,7 +1,9 @@
 const AttackRepository = require('../repositories/attack.repository');
 const GameRepository = require('../repositories/game.repository');
 const ShipRepository = require('../repositories/ship.repository');
+const CustomError = require('../util/customError');
 const { PAYLOAD } = require('../common/messages');
+const { STATUS_CODE } = require('../constants/app.constant');
 const { GAME_STATUS, GRID } = require('../constants/game.constant');
 const { SHIP_TYPE, SHIP_POSITION } = require('../constants/ship.constant');
 
@@ -35,7 +37,7 @@ const GameService = {
     }
 
     return {
-      statusCode: 201,
+      statusCode: STATUS_CODE.CREATED,
       responseMessage: PAYLOAD.GAME_STARTED,
       game: newGame,
     };
@@ -45,7 +47,7 @@ const GameService = {
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
     if (!game) {
-      throw new Error(PAYLOAD.INVALID_GAME_ID(gameId));
+      throw new CustomError(PAYLOAD.INVALID_GAME_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
 
     // get ships and attacks
@@ -53,7 +55,7 @@ const GameService = {
     const attacks = await AttackRepository.getAllAttacksByGameId(gameId);
 
     return {
-      statusCode: 200,
+      statusCode: STATUS_CODE.OK,
       responseMessage: PAYLOAD.GAME_FETCHED,
       game: game,
       ships: ships,
@@ -64,8 +66,11 @@ const GameService = {
   abandonGame: async (gameId) => {
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
-    if (!game || game.game_status === GAME_STATUS.OVER) {
-      throw new Error(PAYLOAD.INVALID_GAME_ID(gameId));
+    if (!game) {
+      throw new CustomError(PAYLOAD.INVALID_GAME_ID(gameId), STATUS_CODE.NOT_FOUND);
+    }
+    if (game.game_status === GAME_STATUS.OVER) {
+      throw new CustomError(PAYLOAD.GAME_OVER, STATUS_CODE.CONFLICT);
     }
 
     // update game status
@@ -77,7 +82,7 @@ const GameService = {
     await GameRepository.updateGameStatusById(gameDetails);
 
     return {
-      statusCode: 200,
+      statusCode: STATUS_CODE.OK,
       responseMessage: PAYLOAD.GAME_ABANDONED,
     };
   },

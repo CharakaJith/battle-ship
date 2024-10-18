@@ -13,6 +13,7 @@ module.exports = {
 
     HIT_SUNK: (ship) => `Hit! A ${ship} was sunked!`,
     INVALID_GAME_ID: (id) => `Invalid game id ${id}!`,
+    INVALID_ENDPOINT: (method, url) => `Cannot ${method}: ${url}`,
   },
 
   // validation error messages

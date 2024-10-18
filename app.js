@@ -2,9 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const chalk = require('chalk');
 const Initialize = require('./database/initialize');
+const ErrorHandler = require('./middleware/errorHandler');
+const { PAYLOAD } = require('./common/messages');
+const { APP_ENV, STATUS_CODE } = require('./constants/app.constant');
+require('dotenv').config();
+
 const routesV1 = require('./routes/v1/index');
 const routesV2 = require('./routes/v2/index');
-require('dotenv').config();
+const CustomError = require('./util/customError');
 
 const app = express();
 
@@ -16,9 +21,19 @@ Initialize.createTables();
 
 // setup routing paths
 app.use('/api/v1', routesV1);
-// app.use('/api/attack', attack);
+app.use('/api/v2', routesV2);
 
-const env = process.env.NODE_ENV || 'development';
+// route for undefined routes
+app.use((req, res) => {
+  const { method, originalUrl } = req;
+
+  throw new CustomError(PAYLOAD.INVALID_ENDPOINT(method, originalUrl), STATUS_CODE.BAD_REQUEST);
+});
+
+// global custom error handler
+app.use(ErrorHandler);
+
+const env = process.env.NODE_ENV || APP_ENV.DEV;
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(

@@ -1,9 +1,7 @@
-const logger = require('../middleware/logger/logger');
 const AttackService = require('../services/attack.service');
-const { LOG_TYPE } = require('../constants/log.constant');
 
 const AttackController = {
-  coordinateAttack: async (req, res) => {
+  coordinateAttack: async (req, res, next) => {
     try {
       const gameId = parseInt(req.params.id);
       const { coordinate } = req.body;
@@ -19,14 +17,7 @@ const AttackController = {
         },
       });
     } catch (error) {
-      logger(LOG_TYPE.ERROR, false, 500, error.message, req);
-
-      res.status(500).json({
-        success: false,
-        data: {
-          message: error.message,
-        },
-      });
+      next(error);
     }
   },
 };
