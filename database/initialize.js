@@ -1,4 +1,3 @@
-const chalk = require('chalk');
 const db = require('./connection');
 const { DATABASE } = require('../common/messages');
 
@@ -59,9 +58,9 @@ const Initialize = {
     tables.forEach(({ table, query }) => {
       db.run(query, (error) => {
         if (error) {
-          console.log(chalk.white.bgRed.bold(` ${DATABASE.TABLE.FAILED(table, error)} `));
+          console.log(`${DATABASE.TABLE.FAILED(table, error)}`);
         } else {
-          console.log(chalk.white.bgCyan.bold(` ${DATABASE.TABLE.CREATED(table)} `));
+          console.log(`${DATABASE.TABLE.CREATED(table)}`);
         }
       });
     });

@@ -1,6 +1,6 @@
 const logger = require('../middleware/logger/logger');
 const GameService = require('../services/game.service');
-const { LOG_TYPE } = require('../enum/log');
+const { LOG_TYPE } = require('../constants/log.constant');
 
 const GameController = {
   startNewGame: async (req, res) => {

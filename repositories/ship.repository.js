@@ -1,6 +1,6 @@
 const db = require('../database/connection');
 const { SERVICE } = require('../common/messages');
-const { TABLE_NAME } = require('../enum/table');
+const { TABLE_NAME } = require('../constants/table.constant');
 
 const ShipRepository = {
   /**
@@ -18,7 +18,7 @@ const ShipRepository = {
       db.run(insertQuery, values, function (error) {
         if (error) return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.SHIP, error)));
 
-        resolve(this.lastID);
+        return resolve(this.lastID);
       });
     });
   },
@@ -36,7 +36,7 @@ const ShipRepository = {
       db.all(getAllQuery, [gameId], function (error, rows) {
         if (error) return reject(new Error(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error)));
 
-        resolve(rows);
+        return resolve(rows);
       });
     });
   },
@@ -55,10 +55,10 @@ const ShipRepository = {
       const values = [ship.isSunk, ship.id];
 
       db.run(updateQuery, values, function (error) {
-        if (error) return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.SHIP, id, error)));
+        if (error) return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.SHIP, ship.id, error)));
 
         // get all ships
-        ShipService.getAllShipsByGameId(ship.gameId)
+        return ShipRepository.getAllShipsByGameId(ship.gameId)
           .then((ships) => resolve(ships))
           .catch((error) => reject(error));
       });

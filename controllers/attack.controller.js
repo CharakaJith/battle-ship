@@ -1,6 +1,6 @@
 const logger = require('../middleware/logger/logger');
 const AttackService = require('../services/attack.service');
-const { LOG_TYPE } = require('../enum/log');
+const { LOG_TYPE } = require('../constants/log.constant');
 
 const AttackController = {
   coordinateAttack: async (req, res) => {

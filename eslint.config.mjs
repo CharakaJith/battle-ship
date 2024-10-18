@@ -16,7 +16,7 @@ export default [
       semi: ['error', 'always'],
       'prefer-const': 'warn',
       'no-var': 'error',
-      'arrow-parens': ['error', 'as-needed'],
+      // 'arrow-parens': ['error', 'as-needed'],
     },
   },
 ];

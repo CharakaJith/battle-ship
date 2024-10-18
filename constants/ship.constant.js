@@ -14,6 +14,6 @@ module.exports = {
 
   SHIP_POSITION: Object.freeze({
     HORIZONTAL: 'horizontal',
-    VERTICAL: 'vertical'
+    VERTICAL: 'vertical',
   }),
 };

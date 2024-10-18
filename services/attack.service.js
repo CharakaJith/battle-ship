@@ -3,8 +3,8 @@ const AttackRepository = require('../repositories/attack.repository');
 const ShipRepository = require('../repositories/ship.repository');
 const FieldValidator = require('../util/field.validator');
 const { PAYLOAD } = require('../common/messages');
-const { GAME_STATUS } = require('../enum/game');
-const { SHIP_POSITION } = require('../enum/ship');
+const { GAME_STATUS } = require('../constants/game.constant');
+const { SHIP_POSITION } = require('../constants/ship.constant');
 
 const AttackService = {
   coordinateAttack: async (data) => {
@@ -94,6 +94,7 @@ const getAlphabetPosition = async (letter) => {
 const getVertices = async (coordinate, game) => {
   const match = coordinate.match(/^([A-Z])(\d+)$/);
 
+  // eslint-disable-next-line no-unused-vars
   const [_, letter, number] = match;
   const colNum = await getAlphabetPosition(letter);
   const row = parseInt(number, 10) - 1;
@@ -111,19 +112,19 @@ const checkAttackAvailable = async (attack, previousAttacks) => {
   return previousAttacks.some((prev) => prev.attack_row === attack.row && prev.attack_col === attack.col);
 };
 
-const checkAttackHit = async (attack, ships, previousAttacks) => {
+const checkAttackHit = async (attack, ships) => {
   const attackRow = attack.row;
   const attackCol = attack.col;
 
   let isHit = false;
   for (const ship of ships) {
     if (ship.ship_position === SHIP_POSITION.HORIZONTAL) {
-      // check if the attack row matches and the column is within the ship's column range
+      // check attack row match and column is hit
       if (attackRow === ship.start_row && attackCol >= ship.start_col && attackCol <= ship.end_col) {
         isHit = true;
       }
     } else if (ship.ship_position === SHIP_POSITION.VERTICAL) {
-      // check if the attack column matches and the row is within the ship's row range
+      // check attack column match and row is hit
       if (attackCol === ship.start_col && attackRow >= ship.start_row && attackRow <= ship.end_row) {
         isHit = true;
       }

@@ -1,6 +1,6 @@
 const db = require('../database/connection');
 const { SERVICE } = require('../common/messages');
-const { TABLE_NAME } = require('../enum/table');
+const { TABLE_NAME } = require('../constants/table.constant');
 
 const GameRepository = {
   /**
@@ -18,7 +18,7 @@ const GameRepository = {
         if (error) return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.GAME, error)));
 
         // get newly created game by id
-        GameRepository.getGameById(this.lastID)
+        return GameRepository.getGameById(this.lastID)
           .then((game) => resolve(game))
           .catch((error) => reject(error));
       });
@@ -38,7 +38,7 @@ const GameRepository = {
       db.get(getQuery, [gameId], function (error, row) {
         if (error) return reject(new Error(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.GAME, gameId, error)));
 
-        resolve(row);
+        return resolve(row);
       });
     });
   },
@@ -57,10 +57,10 @@ const GameRepository = {
       const values = [game.status, game.id];
 
       db.run(updateQuery, values, function (error) {
-        if (error) return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.GAME, id, error)));
+        if (error) return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.GAME, game.id, error)));
 
         // get updated game by id
-        GameRepository.getGameById(game.id)
+        return GameRepository.getGameById(game.id)
           .then((game) => resolve(game))
           .catch((error) => reject(error));
       });

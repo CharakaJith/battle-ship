@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const chalk = require('chalk');
 const Initialize = require('./database/initialize');
-
+const routesV1 = require('./routes/v1/index');
+const routesV2 = require('./routes/v2/index');
 require('dotenv').config();
 
 const app = express();
@@ -13,13 +14,9 @@ app.use(express.json());
 // create database and tables
 Initialize.createTables();
 
-// export routes
-const game = require('./routes/game.routes');
-const attack = require('./routes/attack.routes');
-
 // setup routing paths
-app.use('/api/game', game);
-app.use('/api/attack', attack);
+app.use('/api/v1', routesV1);
+// app.use('/api/attack', attack);
 
 const env = process.env.NODE_ENV || 'development';
 const PORT = process.env.PORT || 3000;

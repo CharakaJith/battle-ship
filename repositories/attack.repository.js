@@ -1,6 +1,6 @@
 const db = require('../database/connection');
 const { SERVICE } = require('../common/messages');
-const { TABLE_NAME } = require('../enum/table');
+const { TABLE_NAME } = require('../constants/table.constant');
 
 const AttackRepository = {
   /**
@@ -18,7 +18,7 @@ const AttackRepository = {
         if (error) return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.ATTACK, error)));
 
         // get newly created attack by id
-        AttackRepository.getAllAttacksByGameId(attack.gameId)
+        return AttackRepository.getAllAttacksByGameId(attack.gameId)
           .then((attacks) => resolve(attacks))
           .catch((error) => reject(error));
       });
@@ -38,7 +38,7 @@ const AttackRepository = {
       db.get(getQuery, [attackId], function (error, row) {
         if (error) return reject(new Error(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.ATTACK, attackId, error)));
 
-        resolve(row);
+        return resolve(row);
       });
     });
   },
@@ -56,7 +56,7 @@ const AttackRepository = {
       db.all(getAllQuery, [gameId], function (error, rows) {
         if (error) return reject(new Error(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error)));
 
-        resolve(rows);
+        return resolve(rows);
       });
     });
   },

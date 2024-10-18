@@ -2,7 +2,7 @@ const winston = require('winston');
 const { format } = winston;
 const { combine, timestamp, printf } = format;
 const DailyRotateFile = require('winston-daily-rotate-file');
-const { LOG_TYPE } = require('../../enum/log');
+const { LOG_TYPE } = require('../../constants/log.constant');
 
 const logFormat = printf(({ level, message, timestamp }) => {
   return `${timestamp} ${level}: ${message}`;

@@ -2,8 +2,8 @@ const AttackRepository = require('../repositories/attack.repository');
 const GameRepository = require('../repositories/game.repository');
 const ShipRepository = require('../repositories/ship.repository');
 const { PAYLOAD } = require('../common/messages');
-const { GAME_STATUS, GRID } = require('../enum/game');
-const { SHIP_TYPE, SHIP_POSITION } = require('../enum/ship');
+const { GAME_STATUS, GRID } = require('../constants/game.constant');
+const { SHIP_TYPE, SHIP_POSITION } = require('../constants/ship.constant');
 
 const GameService = {
   startNewGame: async () => {
@@ -44,7 +44,7 @@ const GameService = {
   getGameDetails: async (gameId) => {
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
-    if (!game || game.game_status === GAME_STATUS.OVER) {
+    if (!game) {
       throw new Error(PAYLOAD.INVALID_GAME_ID(gameId));
     }
 
@@ -113,8 +113,8 @@ const placeShipsOnGrid = async (grid) => {
       }
 
       // assign random starting point
-      let maxStart = grid.length - shipSize;
-      let randomStart = Math.floor(Math.random() * (maxStart + 1));
+      const maxStart = grid.length - shipSize;
+      const randomStart = Math.floor(Math.random() * (maxStart + 1));
 
       const newShip = {
         ship: ship.name,
