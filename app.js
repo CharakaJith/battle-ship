@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const chalk = require('chalk');
-const Initialize = require('./database/initialize');
+const initialize = require('./database/initialize');
 const errorHandler = require('./middleware/errorHandler');
 const { PAYLOAD } = require('./common/messages');
 const { APP_ENV, STATUS_CODE } = require('./constants/app.constant');
@@ -24,10 +24,10 @@ app.use(express.json());
 // initialize database
 const initialization = async () => {
   // create database and tables
-  await Initialize.createTables();
+  await initialize.createTables();
 
   // insert initial user
-  await Initialize.insertUser();
+  await initialize.insertUser();
 };
 initialization();
 

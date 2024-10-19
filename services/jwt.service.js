@@ -3,7 +3,7 @@ const CustomError = require('../util/customError');
 const { PAYLOAD } = require('../common/messages');
 const { STATUS_CODE } = require('../constants/app.constant');
 
-const JwtService = {
+const jwtService = {
   generateAccessToken: async (tokenUser) => {
     try {
       return jwt.sign({ tokenUser }, process.env.ACCESS_TOKEN_SECRET, {
@@ -39,4 +39,4 @@ const JwtService = {
   },
 };
 
-module.exports = JwtService;
+module.exports = jwtService;

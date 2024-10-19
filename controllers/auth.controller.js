@@ -1,13 +1,13 @@
-const AuthService = require('../services/auth.service');
+const authService = require('../services/auth.service');
 const { APP_ENV } = require('../constants/app.constant');
 
-const AuthController = {
+const authController = {
   generateAccessToken: async (req, res, next) => {
     try {
       const { email, password } = req.body;
 
       const data = { email, password };
-      const generateResponse = await AuthService.generateTokens(data);
+      const generateResponse = await authService.generateTokens(data);
 
       const { statusCode, responseMessage, accessToken, refreshToken } = generateResponse;
 
@@ -40,7 +40,7 @@ const AuthController = {
     try {
       const { cookie } = req.headers;
 
-      const refreshResponse = await AuthService.refreshAccessToken(cookie);
+      const refreshResponse = await authService.refreshAccessToken(cookie);
 
       const { statusCode, responseMessage, accessToken } = refreshResponse;
       res.set({
@@ -58,4 +58,4 @@ const AuthController = {
   },
 };
 
-module.exports = AuthController;
+module.exports = authController;

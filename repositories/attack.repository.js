@@ -4,7 +4,7 @@ const { SERVICE } = require('../common/messages');
 const { STATUS_CODE } = require('../constants/app.constant');
 const { TABLE_NAME } = require('../constants/table.constant');
 
-const AttackRepository = {
+const attackRepository = {
   /**
    * Function to create a new record in table "attacks"
    *
@@ -20,7 +20,8 @@ const AttackRepository = {
         if (error) return reject(new CustomError(SERVICE.FAILED.CREATE(TABLE_NAME.ATTACK, error), STATUS_CODE.UNPORCESSABLE));
 
         // get newly created attack by id
-        return AttackRepository.getAllAttacksByGameId(attack.gameId)
+        return attackRepository
+          .getAllAttacksByGameId(attack.gameId)
           .then((attacks) => resolve(attacks))
           .catch((error) => reject(error));
       });
@@ -64,4 +65,4 @@ const AttackRepository = {
   },
 };
 
-module.exports = AttackRepository;
+module.exports = attackRepository;

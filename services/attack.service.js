@@ -1,25 +1,25 @@
-const GameRepository = require('../repositories/game.repository');
-const AttackRepository = require('../repositories/attack.repository');
-const ShipRepository = require('../repositories/ship.repository');
-const FieldValidator = require('../util/fieldValidator');
+const gameRepository = require('../repositories/game.repository');
+const attackRepository = require('../repositories/attack.repository');
+const shipRepository = require('../repositories/ship.repository');
+const fieldValidator = require('../util/fieldValidator');
 const CustomError = require('../util/customError');
 const { PAYLOAD } = require('../common/messages');
 const { STATUS_CODE } = require('../constants/app.constant');
 const { GAME_STATUS } = require('../constants/game.constant');
 const { SHIP_POSITION } = require('../constants/ship.constant');
 
-const AttackService = {
+const attackService = {
   coordinateAttack: async (data) => {
     const { gameId, coordinate, user } = data;
     let gameWon = false;
     let payloadMessage = PAYLOAD.ATTACK.MISS;
 
     // validate game id and coordinate
-    await FieldValidator.checkIfEmptyNumber(gameId, 'gameId');
-    await FieldValidator.validateAttackCoordinate(coordinate);
+    await fieldValidator.checkIfEmptyNumber(gameId, 'gameId');
+    await fieldValidator.validateAttackCoordinate(coordinate);
 
     // get the game by id and validate
-    const game = await GameRepository.getGameById(gameId);
+    const game = await gameRepository.getGameById(gameId);
     if (!game || game.game_status === GAME_STATUS.OVER) {
       throw new CustomError(PAYLOAD.GAME.INVALID_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
@@ -28,7 +28,7 @@ const AttackService = {
     }
     if (game.game_status === GAME_STATUS.WON) {
       gameWon = true;
-      const ships = await ShipRepository.getAllShipsByGameId(gameId);
+      const ships = await shipRepository.getAllShipsByGameId(gameId);
       const sunkenShips = ships.filter((ship) => ship.is_sunk === 1);
 
       return {
@@ -42,14 +42,14 @@ const AttackService = {
 
     // check if attack is already made
     const attackVertices = await getVertices(coordinate, game);
-    const previousAttacks = await AttackRepository.getAllAttacksByGameId(gameId);
+    const previousAttacks = await attackRepository.getAllAttacksByGameId(gameId);
     const isAlreadyAttacked = await checkAttackAvailable(attackVertices, previousAttacks);
     if (isAlreadyAttacked) {
       throw new CustomError(PAYLOAD.ATTACK.MADE, STATUS_CODE.CONFLICT);
     }
 
     // check if attack hits a ship
-    const ships = await ShipRepository.getAllShipsByGameId(gameId);
+    const ships = await shipRepository.getAllShipsByGameId(gameId);
     const sunkenShips = ships.filter((ship) => ship.is_sunk === 1);
     const isHit = await checkAttackHit(attackVertices, ships);
 
@@ -60,7 +60,7 @@ const AttackService = {
       attackCol: attackVertices.col,
       hit: isHit,
     };
-    const allAttacks = await AttackRepository.createNewAttack(attackDetails);
+    const allAttacks = await attackRepository.createNewAttack(attackDetails);
 
     // check if a ship sunk and update ship status
     if (isHit) {
@@ -80,7 +80,7 @@ const AttackService = {
               gameId: gameId,
               isSunk: true,
             };
-            const updatedShips = await ShipRepository.updateShipStatusById(shipDetails);
+            const updatedShips = await shipRepository.updateShipStatusById(shipDetails);
 
             // check all ships are sunk
             const isWon = updatedShips.every((ship) => ship.is_sunk === 1);
@@ -92,7 +92,7 @@ const AttackService = {
                 id: game.game_id,
                 status: GAME_STATUS.WON,
               };
-              await GameRepository.updateGameStatusById(gameDetails);
+              await gameRepository.updateGameStatusById(gameDetails);
             }
           }
         }
@@ -175,4 +175,4 @@ const checkIfShipSunk = async (ship, allAttacks) => {
   return shipPositions.every((pos) => hits.some((attack) => attack.attack_row === pos.row && attack.attack_col === pos.col));
 };
 
-module.exports = AttackService;
+module.exports = attackService;

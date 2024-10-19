@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt');
 const db = require('./connection');
-const UserRepository = require('../repositories/user.repository');
+const userRepository = require('../repositories/user.repository');
 const { DATABASE } = require('../common/messages');
 require('dotenv').config();
 
-const Initialize = {
+const initialize = {
   createTables: async () => {
     const tables = [
       // users table
@@ -96,7 +96,7 @@ const Initialize = {
     const password = process.env.USER_PASSWORD;
 
     // check if user exists
-    const user = await UserRepository.getUserByEmail(email);
+    const user = await userRepository.getUserByEmail(email);
     if (user) {
       return;
     }
@@ -111,10 +111,10 @@ const Initialize = {
       password: hashedPassword,
       isActive: true,
     };
-    const newUser = await UserRepository.createNewUser(userDetails);
+    const newUser = await userRepository.createNewUser(userDetails);
 
     console.log(DATABASE.USER.CREATED(newUser.user_email));
   },
 };
 
-module.exports = Initialize;
+module.exports = initialize;

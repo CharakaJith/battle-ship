@@ -4,7 +4,7 @@ const { SERVICE } = require('../common/messages');
 const { STATUS_CODE } = require('../constants/app.constant');
 const { TABLE_NAME } = require('../constants/table.constant');
 
-const UserRepository = {
+const userRepository = {
   /**
    * Function to create a new record in table "users"
    *
@@ -19,7 +19,8 @@ const UserRepository = {
       db.run(insertQuery, values, function (error) {
         if (error) return reject(new CustomError(SERVICE.FAILED.CREATE(TABLE_NAME.USER, error), STATUS_CODE.UNPORCESSABLE));
 
-        return UserRepository.getUserById(this.lastID)
+        return userRepository
+          .getUserById(this.lastID)
           .then((user) => resolve(user))
           .catch((error) => reject(error));
       });
@@ -63,4 +64,4 @@ const UserRepository = {
   },
 };
 
-module.exports = UserRepository;
+module.exports = userRepository;

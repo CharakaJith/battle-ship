@@ -1,20 +1,21 @@
 const bcrypt = require('bcrypt');
-const JwtService = require('./jwt.service');
-const UserRepository = require('../repositories/user.repository');
-const FieldValidator = require('../util/fieldValidator');
+const jwtService = require('./jwt.service');
+const userRepository = require('../repositories/user.repository');
+const fieldValidator = require('../util/fieldValidator');
 const CustomError = require('../util/customError');
 const { PAYLOAD } = require('../common/messages');
 const { STATUS_CODE } = require('../constants/app.constant');
-const AuthService = {
+
+const authService = {
   generateTokens: async (data) => {
     const { email, password } = data;
 
     // validate user inputs
-    await FieldValidator.validateEmail(email);
-    await FieldValidator.checkIfEmptyString(password, 'password');
+    await fieldValidator.validateEmail(email);
+    await fieldValidator.checkIfEmptyString(password, 'password');
 
     // validate user
-    const user = await UserRepository.getUserByEmail(email);
+    const user = await userRepository.getUserByEmail(email);
     if (!user) {
       throw new CustomError(PAYLOAD.INVALID_CREDENTIALS, STATUS_CODE.NOT_FOUND);
     }
@@ -32,8 +33,8 @@ const AuthService = {
       email: user.user_email,
       isActive: user.is_active,
     };
-    const accessToken = await JwtService.generateAccessToken(tokenUser);
-    const refreshToken = await JwtService.generateRefreshToken(tokenUser);
+    const accessToken = await jwtService.generateAccessToken(tokenUser);
+    const refreshToken = await jwtService.generateRefreshToken(tokenUser);
 
     return {
       statusCode: STATUS_CODE.OK,
@@ -48,10 +49,10 @@ const AuthService = {
     const token = cookie.split('=')[1];
 
     // validate user inputs
-    await FieldValidator.checkIfEmptyString(token, 'token');
+    await fieldValidator.checkIfEmptyString(token, 'token');
 
     // refresh access token
-    const refreshedToken = await JwtService.refreshToken(token);
+    const refreshedToken = await jwtService.refreshToken(token);
 
     return {
       statusCode: STATUS_CODE.OK,
@@ -61,4 +62,4 @@ const AuthService = {
   },
 };
 
-module.exports = AuthService;
+module.exports = authService;

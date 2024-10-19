@@ -4,7 +4,7 @@ const { SERVICE } = require('../common/messages');
 const { STATUS_CODE } = require('../constants/app.constant');
 const { TABLE_NAME } = require('../constants/table.constant');
 
-const GameRepository = {
+const gameRepository = {
   /**
    * Function to create a new record in table "games"
    *
@@ -20,7 +20,8 @@ const GameRepository = {
         if (error) return reject(new CustomError(SERVICE.FAILED.CREATE(TABLE_NAME.GAME, error), STATUS_CODE.UNPORCESSABLE));
 
         // get newly created game by id
-        return GameRepository.getGameById(this.lastID)
+        return gameRepository
+          .getGameById(this.lastID)
           .then((game) => resolve(game))
           .catch((error) => reject(error));
       });
@@ -62,7 +63,8 @@ const GameRepository = {
         if (error) return reject(new CustomError(SERVICE.FAILED.UPDATE(TABLE_NAME.GAME, game.id, error), STATUS_CODE.UNPORCESSABLE));
 
         // get updated game by id
-        return GameRepository.getGameById(game.id)
+        return gameRepository
+          .getGameById(game.id)
           .then((game) => resolve(game))
           .catch((error) => reject(error));
       });
@@ -70,4 +72,4 @@ const GameRepository = {
   },
 };
 
-module.exports = GameRepository;
+module.exports = gameRepository;

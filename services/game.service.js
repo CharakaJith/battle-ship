@@ -1,13 +1,13 @@
-const AttackRepository = require('../repositories/attack.repository');
-const GameRepository = require('../repositories/game.repository');
-const ShipRepository = require('../repositories/ship.repository');
+const attackRepository = require('../repositories/attack.repository');
+const gameRepository = require('../repositories/game.repository');
+const shipRepository = require('../repositories/ship.repository');
 const CustomError = require('../util/customError');
 const { PAYLOAD } = require('../common/messages');
 const { STATUS_CODE } = require('../constants/app.constant');
 const { GAME_STATUS, GRID } = require('../constants/game.constant');
 const { SHIP_TYPE, SHIP_POSITION } = require('../constants/ship.constant');
 
-const GameService = {
+const gameService = {
   startNewGame: async (user) => {
     // create a new game
     const gameDetails = {
@@ -15,7 +15,7 @@ const GameService = {
       gameStatus: GAME_STATUS.IN_PROGRESS,
       size: GRID.SIZE,
     };
-    const newGame = await GameRepository.createNewGame(gameDetails);
+    const newGame = await gameRepository.createNewGame(gameDetails);
 
     // create the grid
     const grid = await createEmptyGrid(newGame.grid_size);
@@ -34,7 +34,7 @@ const GameService = {
         endCol: ship.endCol,
       };
 
-      await ShipRepository.placeShip(shipDetails);
+      await shipRepository.placeShip(shipDetails);
     }
 
     return {
@@ -48,7 +48,7 @@ const GameService = {
     const { gameId, user } = data;
 
     // get the game by id and validate
-    const game = await GameRepository.getGameById(gameId);
+    const game = await gameRepository.getGameById(gameId);
     if (!game) {
       throw new CustomError(PAYLOAD.GAME.INVALID_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
@@ -57,8 +57,8 @@ const GameService = {
     }
 
     // get ships and attacks
-    const ships = await ShipRepository.getAllShipsByGameId(gameId);
-    const attacks = await AttackRepository.getAllAttacksByGameId(gameId);
+    const ships = await shipRepository.getAllShipsByGameId(gameId);
+    const attacks = await attackRepository.getAllAttacksByGameId(gameId);
 
     return {
       statusCode: STATUS_CODE.OK,
@@ -73,7 +73,7 @@ const GameService = {
     const { gameId, user } = data;
 
     // get the game by id and validate
-    const game = await GameRepository.getGameById(gameId);
+    const game = await gameRepository.getGameById(gameId);
     if (!game) {
       throw new CustomError(PAYLOAD.GAME.INVALID_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
@@ -90,7 +90,7 @@ const GameService = {
       status: GAME_STATUS.OVER,
       size: game.grid_size,
     };
-    await GameRepository.updateGameStatusById(gameDetails);
+    await gameRepository.updateGameStatusById(gameDetails);
 
     return {
       statusCode: STATUS_CODE.OK,
@@ -198,4 +198,4 @@ const checkShipPlacement = async (newShip, placedShips) => {
   return isAvailable;
 };
 
-module.exports = GameService;
+module.exports = gameService;

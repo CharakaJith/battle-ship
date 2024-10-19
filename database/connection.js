@@ -3,7 +3,7 @@ const path = require('path');
 const { DATABASE } = require('../common/messages');
 
 const dbPath = path.resolve(__dirname, 'database.db');
-const db = new sqlite3.Database(dbPath, (error) => {
+const database = new sqlite3.Database(dbPath, (error) => {
   if (error) {
     console.log(`${DATABASE.CONNECTION.FAILED(error)}`);
   } else {
@@ -11,4 +11,4 @@ const db = new sqlite3.Database(dbPath, (error) => {
   }
 });
 
-module.exports = db;
+module.exports = database;

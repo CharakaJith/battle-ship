@@ -4,7 +4,7 @@ const { SERVICE } = require('../common/messages');
 const { STATUS_CODE } = require('../constants/app.constant');
 const { TABLE_NAME } = require('../constants/table.constant');
 
-const ShipRepository = {
+const shipRepository = {
   /**
    * Function to create a new record in table "ships"
    *
@@ -60,7 +60,8 @@ const ShipRepository = {
         if (error) return reject(new CustomError(SERVICE.FAILED.UPDATE(TABLE_NAME.SHIP, ship.id, error), STATUS_CODE.UNPORCESSABLE));
 
         // get all ships
-        return ShipRepository.getAllShipsByGameId(ship.gameId)
+        return shipRepository
+          .getAllShipsByGameId(ship.gameId)
           .then((ships) => resolve(ships))
           .catch((error) => reject(error));
       });
@@ -68,4 +69,4 @@ const ShipRepository = {
   },
 };
 
-module.exports = ShipRepository;
+module.exports = shipRepository;
