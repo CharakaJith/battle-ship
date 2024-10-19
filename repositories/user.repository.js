@@ -37,7 +37,7 @@ const UserRepository = {
       const selectQuery = 'SELECT * FROM users WHERE user_id = ?';
 
       db.get(selectQuery, [userId], function (error, row) {
-        if (error) return reject(new CustomError(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.USER, userId, error), STATUS_CODE.NOT_FOUND));
+        if (error) return reject(new CustomError(SERVICE.FAILED.GET.BY_ID(TABLE_NAME.USER, userId, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(row);
       });
@@ -55,7 +55,7 @@ const UserRepository = {
       const selectQuery = 'SELECT * FROM users WHERE user_email = ?';
 
       db.get(selectQuery, [email], function (error, row) {
-        if (error) return reject(new CustomError(SERVICE.GET_BY_EMAIL_FAILED(TABLE_NAME.USER, email, error), STATUS_CODE.NOT_FOUND));
+        if (error) return reject(new CustomError(SERVICE.FAILED.GET.BY_EMAIL(TABLE_NAME.USER, email, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(row);
       });

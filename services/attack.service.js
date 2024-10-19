@@ -10,7 +10,7 @@ const { SHIP_POSITION } = require('../constants/ship.constant');
 
 const AttackService = {
   coordinateAttack: async (data) => {
-    const { gameId, coordinate } = data;
+    const { gameId, coordinate, user } = data;
     let gameWon = false;
     let payloadMessage = PAYLOAD.ATTACK.MISS;
 
@@ -22,6 +22,9 @@ const AttackService = {
     const game = await GameRepository.getGameById(gameId);
     if (!game || game.game_status === GAME_STATUS.OVER) {
       throw new CustomError(PAYLOAD.GAME.INVALID_ID(gameId), STATUS_CODE.NOT_FOUND);
+    }
+    if (game.user_id !== user.id) {
+      throw new CustomError(PAYLOAD.PERMISSION_DENIED, STATUS_CODE.FORBIDDON);
     }
     if (game.game_status === GAME_STATUS.WON) {
       gameWon = true;

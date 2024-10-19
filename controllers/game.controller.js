@@ -3,7 +3,9 @@ const GameService = require('../services/game.service');
 const GameController = {
   startNewGame: async (req, res, next) => {
     try {
-      const startResponse = await GameService.startNewGame();
+      const user = req.user;
+
+      const startResponse = await GameService.startNewGame(user);
 
       const { statusCode, responseMessage, game } = startResponse;
       res.status(statusCode).json({
@@ -21,7 +23,10 @@ const GameController = {
   getGameDetails: async (req, res, next) => {
     try {
       const gameId = parseInt(req.params.id);
-      const getResponse = await GameService.getGameDetails(gameId);
+      const user = req.user;
+
+      const data = { gameId, user };
+      const getResponse = await GameService.getGameDetails(data);
 
       const { statusCode, responseMessage, game, ships, attacks } = getResponse;
       res.status(statusCode).json({
@@ -41,7 +46,10 @@ const GameController = {
   abandonGame: async (req, res, next) => {
     try {
       const gameId = parseInt(req.params.id);
-      const abandonResponse = await GameService.abandonGame(gameId);
+      const user = req.user;
+
+      const data = { gameId, user };
+      const abandonResponse = await GameService.abandonGame(data);
 
       const { statusCode, responseMessage } = abandonResponse;
       res.status(statusCode).json({

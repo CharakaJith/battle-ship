@@ -6,7 +6,7 @@ module.exports = {
       FETCHED: 'Game fetched successfully!',
       ABANDONED: 'Game abandoned!',
       OVER: 'Game is already over!',
-      WON: 'All ships sunked! you Won!',
+      WON: 'All ships sunk! you Won!',
 
       INVALID_ID: (id) => `Invalid game id ${id}!`,
     },
@@ -16,7 +16,7 @@ module.exports = {
       INVALID: 'Attck coordinate is out of boundry!',
       MADE: 'Coordinate already attacked!',
 
-      SUNK: (ship) => `Hit! A ${ship} was sunked!`,
+      SUNK: (ship) => `Hit! A ${ship} was sunk!`,
     },
     JWT: {
       GENERATE: {
@@ -32,6 +32,7 @@ module.exports = {
       FAILED: 'Authentication failed!',
     },
 
+    PERMISSION_DENIED: 'Permission denied!',
     INVALID_CREDENTIALS: 'Invalid email or password!',
     INVALID_ENDPOINT: (method, url) => `Cannot ${method}: ${url}`,
   },

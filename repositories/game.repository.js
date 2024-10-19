@@ -13,8 +13,8 @@ const GameRepository = {
    */
   createNewGame: (game) => {
     return new Promise((resolve, reject) => {
-      const insertQuery = 'INSERT INTO games (game_status, grid_size) VALUES (?, ?);';
-      const values = [game.gameStatus, game.size];
+      const insertQuery = 'INSERT INTO games (user_id, game_status, grid_size) VALUES (?, ?, ?);';
+      const values = [game.userId, game.gameStatus, game.size];
 
       db.run(insertQuery, values, function (error) {
         if (error) return reject(new CustomError(SERVICE.FAILED.CREATE(TABLE_NAME.GAME, error), STATUS_CODE.UNPORCESSABLE));

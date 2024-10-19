@@ -8,9 +8,10 @@ const { GAME_STATUS, GRID } = require('../constants/game.constant');
 const { SHIP_TYPE, SHIP_POSITION } = require('../constants/ship.constant');
 
 const GameService = {
-  startNewGame: async () => {
+  startNewGame: async (user) => {
     // create a new game
     const gameDetails = {
+      userId: user.id,
       gameStatus: GAME_STATUS.IN_PROGRESS,
       size: GRID.SIZE,
     };
@@ -43,11 +44,16 @@ const GameService = {
     };
   },
 
-  getGameDetails: async (gameId) => {
+  getGameDetails: async (data) => {
+    const { gameId, user } = data;
+
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
     if (!game) {
       throw new CustomError(PAYLOAD.GAME.INVALID_ID(gameId), STATUS_CODE.NOT_FOUND);
+    }
+    if (game.user_id !== user.id) {
+      throw new CustomError(PAYLOAD.PERMISSION_DENIED, STATUS_CODE.FORBIDDON);
     }
 
     // get ships and attacks
@@ -63,11 +69,16 @@ const GameService = {
     };
   },
 
-  abandonGame: async (gameId) => {
+  abandonGame: async (data) => {
+    const { gameId, user } = data;
+
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
     if (!game) {
       throw new CustomError(PAYLOAD.GAME.INVALID_ID(gameId), STATUS_CODE.NOT_FOUND);
+    }
+    if (game.user_id !== user.id) {
+      throw new CustomError(PAYLOAD.PERMISSION_DENIED, STATUS_CODE.FORBIDDON);
     }
     if (game.game_status !== GAME_STATUS.IN_PROGRESS) {
       throw new CustomError(PAYLOAD.GAME.OVER, STATUS_CODE.CONFLICT);
