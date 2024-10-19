@@ -1,6 +1,7 @@
 const express = require('express');
-const attackRouter = express.Router();
 const AttackController = require('../../controllers/attack.controller');
+
+const attackRouter = express.Router();
 
 attackRouter.post('/', AttackController.coordinateAttack);
 

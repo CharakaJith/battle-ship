@@ -5,13 +5,19 @@ const { STATUS_CODE } = require('../constants/app.constant');
 const { TABLE_NAME } = require('../constants/table.constant');
 
 const UserRepository = {
+  /**
+   * Function to create a new record in table "users"
+   *
+   * @param {Object} user: user details object
+   * @returns a newly created user object
+   */
   createNewUser: async (user) => {
     return new Promise((resolve, reject) => {
-      const insertQuery = 'INSERT INTO users (user_name, user_email, user_password) VALUES(?, ?, ?)';
-      const values = [user.name, user.email, user.password];
+      const insertQuery = 'INSERT INTO users (user_name, user_email, user_password, is_active) VALUES(?, ?, ?, ?)';
+      const values = [user.name, user.email, user.password, user.isActive];
 
       db.run(insertQuery, values, function (error) {
-        if (error) return reject(new CustomError(SERVICE.CREATE_FAILED(TABLE_NAME.USER, error), STATUS_CODE.UNPORCESSABLE));
+        if (error) return reject(new CustomError(SERVICE.FAILED.CREATE(TABLE_NAME.USER, error), STATUS_CODE.UNPORCESSABLE));
 
         return UserRepository.getUserById(this.lastID)
           .then((user) => resolve(user))
@@ -20,6 +26,12 @@ const UserRepository = {
     });
   },
 
+  /**
+   * Function to fetch a record from table "users" by column 'user_id'
+   *
+   * @param {number} userId: id of the user
+   * @returns a user object if exists, else null
+   */
   getUserById: (userId) => {
     return new Promise((resolve, reject) => {
       const selectQuery = 'SELECT * FROM users WHERE user_id = ?';
@@ -32,6 +44,12 @@ const UserRepository = {
     });
   },
 
+  /**
+   * Function to fetch a record from table "users" by column 'user_email'
+   *
+   * @param {string} email: email of the user
+   * @returns a user object if exists, else null
+   */
   getUserByEmail: (email) => {
     return new Promise((resolve, reject) => {
       const selectQuery = 'SELECT * FROM users WHERE user_email = ?';

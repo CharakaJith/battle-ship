@@ -38,7 +38,7 @@ const GameService = {
 
     return {
       statusCode: STATUS_CODE.CREATED,
-      responseMessage: PAYLOAD.GAME_STARTED,
+      responseMessage: PAYLOAD.GAME.STARTED,
       game: newGame,
     };
   },
@@ -47,7 +47,7 @@ const GameService = {
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
     if (!game) {
-      throw new CustomError(PAYLOAD.INVALID_GAME_ID(gameId), STATUS_CODE.NOT_FOUND);
+      throw new CustomError(PAYLOAD.GAME.INVALID_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
 
     // get ships and attacks
@@ -56,7 +56,7 @@ const GameService = {
 
     return {
       statusCode: STATUS_CODE.OK,
-      responseMessage: PAYLOAD.GAME_FETCHED,
+      responseMessage: PAYLOAD.GAME.FETCHED,
       game: game,
       ships: ships,
       attacks: attacks,
@@ -67,10 +67,10 @@ const GameService = {
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
     if (!game) {
-      throw new CustomError(PAYLOAD.INVALID_GAME_ID(gameId), STATUS_CODE.NOT_FOUND);
+      throw new CustomError(PAYLOAD.GAME.INVALID_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
     if (game.game_status !== GAME_STATUS.IN_PROGRESS) {
-      throw new CustomError(PAYLOAD.GAME_OVER, STATUS_CODE.CONFLICT);
+      throw new CustomError(PAYLOAD.GAME.OVER, STATUS_CODE.CONFLICT);
     }
 
     // update game status
@@ -83,7 +83,7 @@ const GameService = {
 
     return {
       statusCode: STATUS_CODE.OK,
-      responseMessage: PAYLOAD.GAME_ABANDONED,
+      responseMessage: PAYLOAD.GAME.ABANDONED,
     };
   },
 };

@@ -15,6 +15,7 @@ const Initialize = {
             user_name TEXT NOT NULL,
             user_email TEXT NOT NULL,
             user_password TEXT NOT NULL,
+            is_active BOOLEAN NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );`,
@@ -80,10 +81,10 @@ const Initialize = {
           if (error) {
             console.log(`${DATABASE.TABLE.FAILED(table, error)}`);
             return reject(error);
-          } else {
-            console.log(`${DATABASE.TABLE.CREATED(table)}`);
-            return resolve();
           }
+
+          console.log(`${DATABASE.TABLE.CREATED(table)}`);
+          return resolve();
         });
       });
     }
@@ -101,13 +102,14 @@ const Initialize = {
     }
 
     // hash password
-    const hashedPassword = bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // create new user
     const userDetails = {
       name: name,
       email: email,
       password: hashedPassword,
+      isActive: true,
     };
     const newUser = await UserRepository.createNewUser(userDetails);
 

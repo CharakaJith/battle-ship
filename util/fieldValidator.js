@@ -5,7 +5,7 @@ const { STATUS_CODE } = require('../constants/app.constant');
 const FieldValidator = {
   checkIfEmptyString: async (param, fieldName) => {
     if (!param || param.trim().length === 0) {
-      throw new CustomError(VALIDATE.EMPTY_PARAM(fieldName), STATUS_CODE.BAD_REQUEST);
+      throw new CustomError(VALIDATE.PARAM.EMPTY(fieldName), STATUS_CODE.BAD_REQUEST);
     }
 
     return true;
@@ -13,7 +13,17 @@ const FieldValidator = {
 
   checkIfEmptyNumber: async (param, fieldName) => {
     if (!param) {
-      throw new CustomError(VALIDATE.EMPTY_PARAM(fieldName), STATUS_CODE.BAD_REQUEST);
+      throw new CustomError(VALIDATE.PARAM.EMPTY(fieldName), STATUS_CODE.BAD_REQUEST);
+    }
+  },
+
+  validateEmail: async (email) => {
+    const emailFormat = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+
+    const isValidEmail = await FieldValidator.checkIfEmptyString(email, 'email');
+
+    if (isValidEmail && !String(email).match(emailFormat)) {
+      throw new CustomError(VALIDATE.PARAM.INVALID('user email'), STATUS_CODE.BAD_REQUEST);
     }
   },
 
@@ -23,7 +33,7 @@ const FieldValidator = {
     const isValidCoordinate = await FieldValidator.checkIfEmptyString(cooridnate, 'cooridnate');
 
     if (isValidCoordinate && !String(cooridnate).match(coordinateFormat)) {
-      throw new CustomError(VALIDATE.INVALID_PARAM('attack coordinate'), STATUS_CODE.BAD_REQUEST);
+      throw new CustomError(VALIDATE.PARAM.INVALID('attack coordinate'), STATUS_CODE.BAD_REQUEST);
     }
 
     return true;

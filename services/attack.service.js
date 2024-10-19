@@ -12,7 +12,7 @@ const AttackService = {
   coordinateAttack: async (data) => {
     const { gameId, coordinate } = data;
     let gameWon = false;
-    let payloadMessage = PAYLOAD.HIT_MISS;
+    let payloadMessage = PAYLOAD.ATTACK.MISS;
 
     // validate game id and coordinate
     await FieldValidator.checkIfEmptyNumber(gameId, 'gameId');
@@ -21,7 +21,7 @@ const AttackService = {
     // get the game by id and validate
     const game = await GameRepository.getGameById(gameId);
     if (!game || game.game_status === GAME_STATUS.OVER) {
-      throw new CustomError(PAYLOAD.INVALID_GAME_ID(gameId), STATUS_CODE.NOT_FOUND);
+      throw new CustomError(PAYLOAD.GAME.INVALID_ID(gameId), STATUS_CODE.NOT_FOUND);
     }
     if (game.game_status === GAME_STATUS.WON) {
       gameWon = true;
@@ -30,7 +30,7 @@ const AttackService = {
 
       return {
         statusCode: STATUS_CODE.OK,
-        responseMessage: PAYLOAD.GAME_WON,
+        responseMessage: PAYLOAD.GAME.WON,
         isHit: false,
         isWon: gameWon,
         sunkenShips: sunkenShips,
@@ -42,7 +42,7 @@ const AttackService = {
     const previousAttacks = await AttackRepository.getAllAttacksByGameId(gameId);
     const isAlreadyAttacked = await checkAttackAvailable(attackVertices, previousAttacks);
     if (isAlreadyAttacked) {
-      throw new CustomError(PAYLOAD.ATTACK_ALREADY_MADE, STATUS_CODE.CONFLICT);
+      throw new CustomError(PAYLOAD.ATTACK.MADE, STATUS_CODE.CONFLICT);
     }
 
     // check if attack hits a ship
@@ -61,7 +61,7 @@ const AttackService = {
 
     // check if a ship sunk and update ship status
     if (isHit) {
-      payloadMessage = PAYLOAD.HIT_SUCCESS;
+      payloadMessage = PAYLOAD.ATTACK.HIT;
 
       for (const ship of ships) {
         if (ship.is_sunk === 0) {
@@ -69,7 +69,7 @@ const AttackService = {
 
           if (isSunk) {
             sunkenShips.push(ship);
-            payloadMessage = PAYLOAD.HIT_SUNK(ship.ship_type);
+            payloadMessage = PAYLOAD.ATTACK.SUNK(ship.ship_type);
 
             // update ship status
             const shipDetails = {
@@ -121,7 +121,7 @@ const getVertices = async (coordinate, game) => {
 
   // validate row and column against grid size
   if (row < 0 || row >= game.grid_size || col < 0 || col >= game.grid_size) {
-    throw new CustomError(PAYLOAD.INVALID_COORDINATE, STATUS_CODE.BAD_REQUEST);
+    throw new CustomError(PAYLOAD.ATTACK.INVALID, STATUS_CODE.BAD_REQUEST);
   }
 
   return { row, col };

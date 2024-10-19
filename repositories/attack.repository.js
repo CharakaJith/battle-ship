@@ -17,7 +17,7 @@ const AttackRepository = {
       const values = [attack.gameId, attack.attackRow, attack.attackCol, attack.hit];
 
       db.run(insertQuery, values, function (error) {
-        if (error) return reject(new CustomError(SERVICE.CREATE_FAILED(TABLE_NAME.ATTACK, error), STATUS_CODE.UNPORCESSABLE));
+        if (error) return reject(new CustomError(SERVICE.FAILED.CREATE(TABLE_NAME.ATTACK, error), STATUS_CODE.UNPORCESSABLE));
 
         // get newly created attack by id
         return AttackRepository.getAllAttacksByGameId(attack.gameId)
@@ -38,7 +38,7 @@ const AttackRepository = {
       const selectQuery = 'SELECT * FROM attacks WHERE attack_id = ?';
 
       db.get(selectQuery, [attackId], function (error, row) {
-        if (error) return reject(new CustomError(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.ATTACK, attackId, error), STATUS_CODE.NOT_FOUND));
+        if (error) return reject(new CustomError(SERVICE.FAILED.GET.BY_ID(TABLE_NAME.ATTACK, attackId, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(row);
       });
@@ -56,7 +56,7 @@ const AttackRepository = {
       const getAllQuery = 'SELECT * FROM attacks WHERE game_id = ?';
 
       db.all(getAllQuery, [gameId], function (error, rows) {
-        if (error) return reject(new CustomError(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error), STATUS_CODE.NOT_FOUND));
+        if (error) return reject(new CustomError(SERVICE.FAILED.GET.BY_GAME_ID(TABLE_NAME.SHIP, gameId, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(rows);
       });

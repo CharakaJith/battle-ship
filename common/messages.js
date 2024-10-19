@@ -1,25 +1,44 @@
 module.exports = {
   // response payload messages
   PAYLOAD: {
-    GAME_STARTED: 'New game has started!',
-    GAME_FETCHED: 'Game fetched successfully!',
-    GAME_ABANDONED: 'Game abandoned!',
-    GAME_OVER: 'Game is already over!',
-    GAME_WON: 'All ships sunked! you Won!',
-    INVALID_COORDINATE: 'Attck coordinate is out of boundry!',
-    ATTACK_ALREADY_MADE: 'Coordinate already attacked!',
-    HIT_SUCCESS: 'Hit! Attack was successful!',
-    HIT_MISS: 'Miss! Attack was unsuccessful',
+    GAME: {
+      STARTED: 'New game has started!',
+      FETCHED: 'Game fetched successfully!',
+      ABANDONED: 'Game abandoned!',
+      OVER: 'Game is already over!',
+      WON: 'All ships sunked! you Won!',
 
-    HIT_SUNK: (ship) => `Hit! A ${ship} was sunked!`,
-    INVALID_GAME_ID: (id) => `Invalid game id ${id}!`,
+      INVALID_ID: (id) => `Invalid game id ${id}!`,
+    },
+    ATTACK: {
+      HIT: 'Hit! Attack was successful!',
+      MISS: 'Miss! Attack was unsuccessful',
+      INVALID: 'Attck coordinate is out of boundry!',
+      MADE: 'Coordinate already attacked!',
+
+      SUNK: (ship) => `Hit! A ${ship} was sunked!`,
+    },
+    JWT: {
+      GENERATE: {
+        SUCCESS: 'JWT generated!',
+        FAILED: (token, error) => `Failed to generate ${token} token: ${error.message}`,
+      },
+      REFRESH: {
+        SUCCESS: 'JWT refreshed!',
+        FAILED: (error) => `Failed to refresh access token: ${error.message}`,
+      },
+    },
+
+    INVALID_CREDENTIALS: 'Invalid email or password!',
     INVALID_ENDPOINT: (method, url) => `Cannot ${method}: ${url}`,
   },
 
   // validation error messages
   VALIDATE: {
-    EMPTY_PARAM: (field) => `Field ${field} is empty!`,
-    INVALID_PARAM: (field) => `Invalid ${field}!`,
+    PARAM: {
+      EMPTY: (field) => `Field ${field} is empty!`,
+      INVALID: (field) => `Invalid ${field} format!`,
+    },
   },
 
   // database connection and initialization messages
@@ -39,10 +58,14 @@ module.exports = {
 
   // service error messages
   SERVICE: {
-    CREATE_FAILED: (table, error) => `Failed to create new ${table}: ${error.message}`,
-    GET_BY_ID_FAILED: (table, id, error) => `Failed to get the ${table} by id ${id}: ${error.message}`,
-    GET_BY_EMAIL_FAILED: (table, email, error) => `Failed to get the ${table} by email ${email}: ${error.message}`,
-    GET_BY_GAME_ID_FAILED: (table, id, error) => `Failed to get all ${table} by game id ${id}: ${error.message}`,
-    UPDATE_FAILED: (table, id, error) => `Failed to update the ${table} by id ${id}: ${error.message}`,
+    FAILED: {
+      CREATE: (table, error) => `Failed to create new ${table}: ${error.message}`,
+      UPDATE: (table, id, error) => `Failed to update the ${table} by id ${id}: ${error.message}`,
+      GET: {
+        BY_ID: (table, id, error) => `Failed to get the ${table} by id ${id}: ${error.message}`,
+        BY_EMAIL: (table, email, error) => `Failed to get the ${table} by email ${email}: ${error.message}`,
+        BY_GAME_ID: (table, id, error) => `Failed to get all ${table} by game id ${id}: ${error.message}`,
+      },
+    },
   },
 };

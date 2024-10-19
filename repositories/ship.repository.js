@@ -18,7 +18,7 @@ const ShipRepository = {
       const values = [ship.gameId, ship.type, ship.size, ship.position, ship.startRow, ship.endRow, ship.startCol, ship.endCol, false];
 
       db.run(insertQuery, values, function (error) {
-        if (error) return reject(new CustomError(SERVICE.CREATE_FAILED(TABLE_NAME.SHIP, error), STATUS_CODE.UNPORCESSABLE));
+        if (error) return reject(new CustomError(SERVICE.FAILED.CREATE(TABLE_NAME.SHIP, error), STATUS_CODE.UNPORCESSABLE));
 
         return resolve(this.lastID);
       });
@@ -36,7 +36,7 @@ const ShipRepository = {
       const getAllQuery = 'SELECT * FROM ships WHERE game_id = ?';
 
       db.all(getAllQuery, [gameId], function (error, rows) {
-        if (error) return reject(new CustomError(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error), STATUS_CODE.NOT_FOUND));
+        if (error) return reject(new CustomError(SERVICE.FAILED.GET.BY_GAME_ID(TABLE_NAME.SHIP, gameId, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(rows);
       });
@@ -57,7 +57,7 @@ const ShipRepository = {
       const values = [ship.isSunk, ship.id];
 
       db.run(updateQuery, values, function (error) {
-        if (error) return reject(new CustomError(SERVICE.UPDATE_FAILED(TABLE_NAME.SHIP, ship.id, error), STATUS_CODE.UNPORCESSABLE));
+        if (error) return reject(new CustomError(SERVICE.FAILED.UPDATE(TABLE_NAME.SHIP, ship.id, error), STATUS_CODE.UNPORCESSABLE));
 
         // get all ships
         return ShipRepository.getAllShipsByGameId(ship.gameId)

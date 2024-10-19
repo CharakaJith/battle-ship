@@ -17,7 +17,7 @@ const GameRepository = {
       const values = [game.gameStatus, game.size];
 
       db.run(insertQuery, values, function (error) {
-        if (error) return reject(new CustomError(SERVICE.CREATE_FAILED(TABLE_NAME.GAME, error), STATUS_CODE.UNPORCESSABLE));
+        if (error) return reject(new CustomError(SERVICE.FAILED.CREATE(TABLE_NAME.GAME, error), STATUS_CODE.UNPORCESSABLE));
 
         // get newly created game by id
         return GameRepository.getGameById(this.lastID)
@@ -38,7 +38,7 @@ const GameRepository = {
       const selectQuery = 'SELECT * FROM games WHERE game_id = ?';
 
       db.get(selectQuery, [gameId], function (error, row) {
-        if (error) return reject(new CustomError(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.GAME, gameId, error), STATUS_CODE.NOT_FOUND));
+        if (error) return reject(new CustomError(SERVICE.FAILED.GET.BY_ID(TABLE_NAME.GAME, gameId, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(row);
       });
@@ -59,7 +59,7 @@ const GameRepository = {
       const values = [game.status, game.id];
 
       db.run(updateQuery, values, function (error) {
-        if (error) return reject(new CustomError(SERVICE.UPDATE_FAILED(TABLE_NAME.GAME, game.id, error), STATUS_CODE.UNPORCESSABLE));
+        if (error) return reject(new CustomError(SERVICE.FAILED.UPDATE(TABLE_NAME.GAME, game.id, error), STATUS_CODE.UNPORCESSABLE));
 
         // get updated game by id
         return GameRepository.getGameById(game.id)

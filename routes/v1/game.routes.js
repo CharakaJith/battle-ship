@@ -1,6 +1,7 @@
 const express = require('express');
-const gameRouter = express.Router();
 const GameController = require('../../controllers/game.controller');
+
+const gameRouter = express.Router();
 
 gameRouter.post('/', GameController.startNewGame);
 gameRouter.get('/:id', GameController.getGameDetails);
