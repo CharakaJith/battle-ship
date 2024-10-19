@@ -1,18 +1,37 @@
+const bcrypt = require('bcrypt');
 const db = require('./connection');
+const UserRepository = require('../repositories/user.repository');
 const { DATABASE } = require('../common/messages');
+require('dotenv').config();
 
 const Initialize = {
-  createTables: () => {
+  createTables: async () => {
     const tables = [
+      // users table
+      {
+        table: 'users',
+        query: `CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_name TEXT NOT NULL,
+            user_email TEXT NOT NULL,
+            user_password TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );`,
+      },
+
       // games table
       {
         table: 'games',
         query: `CREATE TABLE IF NOT EXISTS games (
             game_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             game_status VARCHAR(20) NOT NULL,
             grid_size INTEGER NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
           );`,
       },
 
@@ -55,15 +74,44 @@ const Initialize = {
     ];
 
     // create tables
-    tables.forEach(({ table, query }) => {
-      db.run(query, (error) => {
-        if (error) {
-          console.log(`${DATABASE.TABLE.FAILED(table, error)}`);
-        } else {
-          console.log(`${DATABASE.TABLE.CREATED(table)}`);
-        }
+    for (const { table, query } of tables) {
+      await new Promise((resolve, reject) => {
+        db.run(query, (error) => {
+          if (error) {
+            console.log(`${DATABASE.TABLE.FAILED(table, error)}`);
+            return reject(error);
+          } else {
+            console.log(`${DATABASE.TABLE.CREATED(table)}`);
+            return resolve();
+          }
+        });
       });
-    });
+    }
+  },
+
+  insertUser: async () => {
+    const name = process.env.USER_NAME;
+    const email = process.env.USER_EMAIL;
+    const password = process.env.USER_PASSWORD;
+
+    // check if user exists
+    const user = await UserRepository.getUserByEmail(email);
+    if (user) {
+      return;
+    }
+
+    // hash password
+    const hashedPassword = bcrypt.hash(password, 10);
+
+    // create new user
+    const userDetails = {
+      name: name,
+      email: email,
+      password: hashedPassword,
+    };
+    const newUser = await UserRepository.createNewUser(userDetails);
+
+    console.log(DATABASE.USER.CREATED(newUser.user_email));
   },
 };
 

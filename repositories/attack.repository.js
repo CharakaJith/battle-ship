@@ -1,5 +1,7 @@
 const db = require('../database/connection');
+const CustomError = require('../util/customError');
 const { SERVICE } = require('../common/messages');
+const { STATUS_CODE } = require('../constants/app.constant');
 const { TABLE_NAME } = require('../constants/table.constant');
 
 const AttackRepository = {
@@ -15,7 +17,7 @@ const AttackRepository = {
       const values = [attack.gameId, attack.attackRow, attack.attackCol, attack.hit];
 
       db.run(insertQuery, values, function (error) {
-        if (error) return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.ATTACK, error)));
+        if (error) return reject(new CustomError(SERVICE.CREATE_FAILED(TABLE_NAME.ATTACK, error), STATUS_CODE.UNPORCESSABLE));
 
         // get newly created attack by id
         return AttackRepository.getAllAttacksByGameId(attack.gameId)
@@ -33,10 +35,10 @@ const AttackRepository = {
    */
   getAttackById: (attackId) => {
     return new Promise((resolve, reject) => {
-      const getQuery = 'SELECT * FROM attacks WHERE attack_id = ?';
+      const selectQuery = 'SELECT * FROM attacks WHERE attack_id = ?';
 
-      db.get(getQuery, [attackId], function (error, row) {
-        if (error) return reject(new Error(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.ATTACK, attackId, error)));
+      db.get(selectQuery, [attackId], function (error, row) {
+        if (error) return reject(new CustomError(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.ATTACK, attackId, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(row);
       });
@@ -54,7 +56,7 @@ const AttackRepository = {
       const getAllQuery = 'SELECT * FROM attacks WHERE game_id = ?';
 
       db.all(getAllQuery, [gameId], function (error, rows) {
-        if (error) return reject(new Error(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error)));
+        if (error) return reject(new CustomError(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(rows);
       });

@@ -32,13 +32,17 @@ module.exports = {
       CREATED: (table) => `Table '${table}' created successfully or already exists!`,
       FAILED: (table, error) => `Failed to create database table '${table}': ${error.message}`,
     },
+    USER: {
+      CREATED: (email) => `Initial user created: ${email}`,
+    },
   },
 
   // service error messages
   SERVICE: {
     CREATE_FAILED: (table, error) => `Failed to create new ${table}: ${error.message}`,
-    GET_BY_ID_FAILED: (table, id, error) => `Failed to fetch the ${table} by id ${id}: ${error.message}`,
-    UPDATE_FAILED: (table, id, error) => `Failed to update the ${table} by id ${id}: ${error.message}`,
+    GET_BY_ID_FAILED: (table, id, error) => `Failed to get the ${table} by id ${id}: ${error.message}`,
+    GET_BY_EMAIL_FAILED: (table, email, error) => `Failed to get the ${table} by email ${email}: ${error.message}`,
     GET_BY_GAME_ID_FAILED: (table, id, error) => `Failed to get all ${table} by game id ${id}: ${error.message}`,
+    UPDATE_FAILED: (table, id, error) => `Failed to update the ${table} by id ${id}: ${error.message}`,
   },
 };

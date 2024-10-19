@@ -1,5 +1,7 @@
 const db = require('../database/connection');
+const CustomError = require('../util/customError');
 const { SERVICE } = require('../common/messages');
+const { STATUS_CODE } = require('../constants/app.constant');
 const { TABLE_NAME } = require('../constants/table.constant');
 
 const ShipRepository = {
@@ -16,7 +18,7 @@ const ShipRepository = {
       const values = [ship.gameId, ship.type, ship.size, ship.position, ship.startRow, ship.endRow, ship.startCol, ship.endCol, false];
 
       db.run(insertQuery, values, function (error) {
-        if (error) return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.SHIP, error)));
+        if (error) return reject(new CustomError(SERVICE.CREATE_FAILED(TABLE_NAME.SHIP, error), STATUS_CODE.UNPORCESSABLE));
 
         return resolve(this.lastID);
       });
@@ -34,7 +36,7 @@ const ShipRepository = {
       const getAllQuery = 'SELECT * FROM ships WHERE game_id = ?';
 
       db.all(getAllQuery, [gameId], function (error, rows) {
-        if (error) return reject(new Error(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error)));
+        if (error) return reject(new CustomError(SERVICE.GET_BY_GAME_ID_FAILED(TABLE_NAME.SHIP, gameId, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(rows);
       });
@@ -55,7 +57,7 @@ const ShipRepository = {
       const values = [ship.isSunk, ship.id];
 
       db.run(updateQuery, values, function (error) {
-        if (error) return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.SHIP, ship.id, error)));
+        if (error) return reject(new CustomError(SERVICE.UPDATE_FAILED(TABLE_NAME.SHIP, ship.id, error), STATUS_CODE.UNPORCESSABLE));
 
         // get all ships
         return ShipRepository.getAllShipsByGameId(ship.gameId)

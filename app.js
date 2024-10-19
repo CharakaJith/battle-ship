@@ -16,8 +16,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// create database and tables
-Initialize.createTables();
+// initialize database
+const initialization = async () => {
+  // create database and tables
+  await Initialize.createTables();
+
+  // insert initial user
+  await Initialize.insertUser();
+};
+initialization();
 
 // setup routing paths
 app.use('/api/v1', routesV1);

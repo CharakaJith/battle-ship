@@ -1,5 +1,7 @@
 const db = require('../database/connection');
+const CustomError = require('../util/customError');
 const { SERVICE } = require('../common/messages');
+const { STATUS_CODE } = require('../constants/app.constant');
 const { TABLE_NAME } = require('../constants/table.constant');
 
 const GameRepository = {
@@ -15,7 +17,7 @@ const GameRepository = {
       const values = [game.gameStatus, game.size];
 
       db.run(insertQuery, values, function (error) {
-        if (error) return reject(new Error(SERVICE.CREATE_FAILED(TABLE_NAME.GAME, error)));
+        if (error) return reject(new CustomError(SERVICE.CREATE_FAILED(TABLE_NAME.GAME, error), STATUS_CODE.UNPORCESSABLE));
 
         // get newly created game by id
         return GameRepository.getGameById(this.lastID)
@@ -33,10 +35,10 @@ const GameRepository = {
    */
   getGameById: (gameId) => {
     return new Promise((resolve, reject) => {
-      const getQuery = 'SELECT * FROM games WHERE game_id = ?';
+      const selectQuery = 'SELECT * FROM games WHERE game_id = ?';
 
-      db.get(getQuery, [gameId], function (error, row) {
-        if (error) return reject(new Error(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.GAME, gameId, error)));
+      db.get(selectQuery, [gameId], function (error, row) {
+        if (error) return reject(new CustomError(SERVICE.GET_BY_ID_FAILED(TABLE_NAME.GAME, gameId, error), STATUS_CODE.NOT_FOUND));
 
         return resolve(row);
       });
@@ -57,7 +59,7 @@ const GameRepository = {
       const values = [game.status, game.id];
 
       db.run(updateQuery, values, function (error) {
-        if (error) return reject(new Error(SERVICE.UPDATE_FAILED(TABLE_NAME.GAME, game.id, error)));
+        if (error) return reject(new CustomError(SERVICE.UPDATE_FAILED(TABLE_NAME.GAME, game.id, error), STATUS_CODE.UNPORCESSABLE));
 
         // get updated game by id
         return GameRepository.getGameById(game.id)
