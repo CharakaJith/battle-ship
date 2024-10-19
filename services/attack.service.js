@@ -100,7 +100,7 @@ const attackService = {
     }
 
     return {
-      statusCode: STATUS_CODE.CREATED,
+      statusCode: STATUS_CODE.OK,
       responseMessage: payloadMessage,
       isHit: isHit,
       isWon: gameWon,
