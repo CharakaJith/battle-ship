@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const chalk = require('chalk');
 const Initialize = require('./database/initialize');
-const ErrorHandler = require('./middleware/errorHandler');
+const errorHandler = require('./middleware/errorHandler');
 const { PAYLOAD } = require('./common/messages');
 const { APP_ENV, STATUS_CODE } = require('./constants/app.constant');
 require('dotenv').config();
@@ -43,7 +43,7 @@ app.use((req, res) => {
 });
 
 // global custom error handler
-app.use(ErrorHandler);
+app.use(errorHandler);
 
 const env = process.env.NODE_ENV || APP_ENV.DEV;
 const PORT = process.env.PORT || 3000;

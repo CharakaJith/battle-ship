@@ -28,6 +28,9 @@ module.exports = {
         FAILED: (error) => `Failed to refresh access token: ${error.message}`,
       },
     },
+    AUTH: {
+      FAILED: 'Authentication failed!',
+    },
 
     INVALID_CREDENTIALS: 'Invalid email or password!',
     INVALID_ENDPOINT: (method, url) => `Cannot ${method}: ${url}`,
