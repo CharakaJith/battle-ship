@@ -1,5 +1,9 @@
-# Dependencies
-node_modules
+# Cypress files
+cypress/
+cypress.config.js
+
+# Node modules
+node_modules/
 
 # Repositories
-/repositories/*
+/repositories/

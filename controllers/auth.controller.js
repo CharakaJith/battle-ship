@@ -40,6 +40,8 @@ const authController = {
     try {
       const { cookie } = req.headers;
 
+      console.log(cookie);
+
       const refreshResponse = await authService.refreshAccessToken(cookie);
 
       const { statusCode, responseMessage, accessToken } = refreshResponse;

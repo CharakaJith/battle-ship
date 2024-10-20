@@ -6,6 +6,12 @@ module.exports = {
     PROD: 'production',
   }),
 
+  REQ_METHOD: Object.freeze({
+    POST: 'POST',
+    GET: 'GET',
+    DELETE: 'DELETE'
+  }),
+
   STATUS_CODE: Object.freeze({
     OK: 200,
     CREATED: 201,

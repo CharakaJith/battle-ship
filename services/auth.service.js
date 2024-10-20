@@ -17,7 +17,7 @@ const authService = {
     // validate user
     const user = await userRepository.getUserByEmail(email);
     if (!user) {
-      throw new CustomError(PAYLOAD.INVALID_CREDENTIALS, STATUS_CODE.NOT_FOUND);
+      throw new CustomError(PAYLOAD.INVALID_CREDENTIALS, STATUS_CODE.UNAUTHORIZED);
     }
 
     // validate password
